@@ -5,7 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
 
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+
+    android:id="@+id/noteNavigation"
+    >
 
     <!-- Navigation layout-->
     <!-- XML layout (after login screen) where access notes -->
@@ -100,6 +103,7 @@
                 />
 
             <!-- Create a new note Button -->
+            <!-- Can also be moved to bottom left for easier access? -->
             <Button
                 android:id="@+id/createButton"
 
