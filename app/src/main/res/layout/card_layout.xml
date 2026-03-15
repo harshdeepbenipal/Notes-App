@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+
+    android:layout_gravity="center"
+
+    android:layout_margin="24dp"
+
+    app:cardCornerRadius="20dp"
+
+    android:id="@+id/cardLayout"
+    >
+
+    <!-- XML Layout for note item in navigation recycler view -->
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical"
+
+        android:padding="15dp"
+        >
+
+        <!-- Thumbnail of note possible, or maybe just color coding -->
+
+        <ImageView
+            android:id="@+id/noteThumbnail"
+
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+
+            android:layout_gravity="center_horizontal"
+            />
+
+        <!-- Title of the Note -->
+        <TextView
+            android:id="@+id/noteTitle"
+
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+
+            android:layout_marginTop="5dp"
+
+            android:text="Title"
+            android:textSize="16sp"
+            android:textAlignment="center"
+            />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
+

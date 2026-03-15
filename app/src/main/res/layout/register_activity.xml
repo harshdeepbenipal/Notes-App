@@ -4,17 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
-    android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <!-- Login Screen -->
+    <!-- Register layout -->
 
-    <!-- reference used -->
-    <!-- https://proandroiddev.com/getting-your-constraints-right-constraintlayout-786254ed1166 -->
-
-    <!-- Guideline for top of layout -->
+    <!-- Guideline of top of layout -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/topGuideline"
 
@@ -26,7 +21,7 @@
         app:layout_constraintGuide_percent="0.02"
         />
 
-    <!-- Guideline horizontal where enter fields begin -->
+    <!-- Guideline horizonal of start of enter fields -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/enterGuideline"
 
@@ -35,10 +30,10 @@
         android:orientation="horizontal"
 
         app:layout_constraintGuide_begin="0dp"
-        app:layout_constraintGuide_percent="0.3"
+        app:layout_constraintGuide_percent="0.2"
         />
 
-    <!-- Guideline horizonal for end of enter fields -->
+    <!-- Guideline horizonal of end of enter fields -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/centerGuideline"
 
@@ -47,10 +42,10 @@
         android:orientation="horizontal"
 
         app:layout_constraintGuide_begin="0dp"
-        app:layout_constraintGuide_percent="0.65"
+        app:layout_constraintGuide_percent="0.8"
         />
 
-    <!-- Guideline for bottom of layout -->
+    <!-- Guideline of bottom of layout -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/bottomGuideline"
 
@@ -75,9 +70,9 @@
         />
     -->
 
-    <!-- Welcome text -->
+    <!-- Register text -->
     <TextView
-        android:id="@+id/loginText"
+        android:id="@+id/registerText"
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -90,7 +85,7 @@
         android:layout_marginTop="25dp"
         android:gravity="center"
 
-        android:text="Welcome!"
+        android:text="Register"
         android:textSize="40sp"
         android:textAlignment="center"
         />
@@ -104,12 +99,12 @@
 
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginText"
+        app:layout_constraintTop_toBottomOf="@id/registerText"
         app:layout_constraintBottom_toTopOf="@id/enterGuideline"
 
         android:gravity="center"
 
-        android:text="Ready to note?"
+        android:text="Create an account to note from anywhere"
         android:textSize="14sp"
         android:textAlignment="center"
 
@@ -121,7 +116,7 @@
     <EditText
         android:id="@+id/username"
         android:layout_width="300dp"
-        android:layout_height="45dp"
+        android:layout_height="wrap_content"
 
 
         android:autofillHints="username"
@@ -130,10 +125,10 @@
 
         app:layout_constraintBottom_toTopOf="@id/password"
         app:layout_constraintEnd_toEndOf="parent"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/enterGuideline"
-        app:layout_constraintVertical_bias="0.6" />
+
+        app:layout_constraintVertical_bias="0.7" />
 
     <!-- Password enter field -->
     <EditText
@@ -147,13 +142,13 @@
         app:layout_constraintBottom_toTopOf="@id/centerGuideline"
         app:layout_constraintTop_toBottomOf="@id/enterGuideline"
 
-        android:layout_marginBottom="2dp"
+        android:layout_marginBottom="0dp"
 
         android:autofillHints="password"
         android:hint="Password"
         android:inputType="textPassword"
 
-        app:layout_constraintVertical_bias="0.65"
+        app:layout_constraintVertical_bias="0.43"
 
         />
 
@@ -169,72 +164,70 @@
 
         app:layout_constraintStart_toStartOf="@id/password"
         app:layout_constraintTop_toBottomOf="@id/password"
-        app:layout_constraintBottom_toTopOf="@id/centerGuideline"
 
         android:checked="false"
         android:text="Show Password"
 
-        app:layout_constraintVertical_bias="0.05"
+        app:layout_constraintVertical_bias="0.01"
         />
 
-    <!--Login button -->
-    <Button
-        android:id="@+id/loginButton"
+    <!-- CONFIRM password enter field -->
+    <EditText
+        android:id="@+id/confirmPassword"
 
-        android:layout_width="180dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/centerGuideline"
+        app:layout_constraintTop_toBottomOf="@id/password"
+
+        android:layout_marginBottom="0dp"
+
+        android:autofillHints="re-enter password"
+        android:hint="Re-enter Password"
+        android:inputType="textPassword"
+
+        app:layout_constraintVertical_bias="0.4"
+        />
+
+    <!-- CONFIRM password show -->
+    <CheckBox
+        android:id="@+id/confirmShow"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+
+        app:layout_constraintStart_toStartOf="@id/confirmPassword"
+        app:layout_constraintTop_toBottomOf="@id/confirmPassword"
+
+        android:checked="false"
+        android:text="Show Password"
+
+        app:layout_constraintVertical_bias="0.01"
+        />
+
+    <!-- Register button -->
+    <Button
+        android:id="@+id/registerButton"
+
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
 
         app:layout_constraintTop_toBottomOf="@id/centerGuideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/register"
+        app:layout_constraintBottom_toTopOf="@id/bottomGuideline"
 
         app:layout_constraintVertical_bias="0.1"
 
         android:clickable="true"
-        android:text="LOGIN"
+        android:text="CREATE ACCOUNT"
         android:textSize="16sp"
-        />
-
-    <!-- New user text -->
-    <TextView
-        android:id="@+id/newUser"
-
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomGuideline"
-        app:layout_constraintEnd_toStartOf="@id/register"
-        app:layout_constraintHorizontal_chainStyle="packed"
-
-        android:gravity="center"
-        android:layout_marginEnd="5dp"
-
-        android:text="New User?"
-        android:checked="true"
-        android:textSize="16sp"
-        />
-
-    <!-- Register text -->
-    <TextView
-        android:id="@+id/register"
-
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/newUser"
-        app:layout_constraintBottom_toTopOf="@id/bottomGuideline"
-
-        android:gravity="center"
-        android:layout_marginStart="5dp"
-
-
-        android:text="REGISTER HERE"
-        android:checked="true"
-        android:textSize="16sp"
-
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
