@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
 
     android:id="@+id/noteNavigation"
-    android:background="@color/design_default_color_background"
     >
 
     <!-- Navigation layout-->
@@ -83,8 +82,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
 
-                android:background="@color/design_default_color_background"
-                android:backgroundTint="#FF8a8a8a"
+                android:background="@color/transparent"
+                android:backgroundTint="#504D6794"
                 android:backgroundTintMode="add"
                 />
 
@@ -107,7 +106,7 @@
                 app:layout_constraintEnd_toStartOf="@id/leftGuideline"
 
                 android:src="@drawable/menu_icon"
-                android:background="#00000000"
+                android:background="@color/transparent"
                 />
 
             <!-- Create a new note Button -->

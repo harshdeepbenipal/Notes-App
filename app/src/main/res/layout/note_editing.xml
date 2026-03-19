@@ -67,7 +67,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
 
-                android:background="@color/black"
+                android:background="@color/transparent"
+                android:backgroundTint="#504D6794"
+                android:backgroundTintMode="add"
                 />
 
             <!-- Guideline for backbutton-->
@@ -86,8 +88,12 @@
             <ImageButton
                 android:id="@+id/backButton"
 
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:backgroundTint="@color/button"
 
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -135,7 +141,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
 
-                android:background="@color/black"
+                android:background="@color/transparent"
+                android:backgroundTint="#504D6794"
+                android:backgroundTintMode="add"
                 />
 
             <!-- Guideline for bottom of bar left-->
