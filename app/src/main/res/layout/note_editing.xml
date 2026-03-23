@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
@@ -14,11 +15,9 @@
     <!-- Guideline for top bar -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/editBarGuideline"
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-
         app:layout_constraintGuide_begin="0dp"
         app:layout_constraintGuide_percent="0.15"
         />
@@ -26,11 +25,9 @@
     <!-- Guideline for bottom bar -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/editBottomGuideline"
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-
         app:layout_constraintGuide_begin="0dp"
         app:layout_constraintGuide_percent="0.92"
         />
@@ -38,21 +35,17 @@
     <!-- Top Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/editBarLayout"
-
         android:layout_width="0dp"
         android:layout_height="0dp"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/editBarGuideline"
         app:layout_constraintTop_toTopOf="parent"
-
         app:layout_constraintVertical_bias="0.0"
         >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/editLinear"
-
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
@@ -62,22 +55,18 @@
                 android:id="@+id/editToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-
                 android:background="@color/black"
                 />
 
             <!-- Guideline for backbutton-->
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/LeftGuideline"
-
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-
                 app:layout_constraintGuide_begin="0dp"
                 app:layout_constraintGuide_percent="0.2"
                 />
@@ -85,42 +74,65 @@
             <!-- Back Button (Returns to note navigation -->
             <ImageButton
                 android:id="@+id/backButton"
-
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/LeftGuideline"
-
                 android:src="@drawable/back"
-
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- EDITABLE NOTE CONTENT AREA -->
+    <!-- Title EditText -->
+    <EditText
+        android:id="@+id/noteTitleEdit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Title"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/editBarGuideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <!-- Note Content EditText -->
+    <EditText
+        android:id="@+id/noteContentEdit"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="Write your note here..."
+        android:textSize="16sp"
+        android:gravity="top"
+        android:padding="8dp"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toBottomOf="@id/noteTitleEdit"
+        app:layout_constraintBottom_toTopOf="@id/bottomBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
     <!-- Bottom Tool Bar (WHERE NOTE EDITING OPTIONS ARE) -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/bottomBar"
-
         android:layout_width="0dp"
         android:layout_height="0dp"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editBottomGuideline"
-
         app:layout_constraintVertical_bias="0.0"
         >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomBarLayout"
-
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
@@ -130,39 +142,33 @@
                 android:id="@+id/bottomToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-
                 android:background="@color/black"
                 />
 
             <!-- Guideline for bottom of bar left-->
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/bottomGuideline"
-
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-
                 app:layout_constraintGuide_begin="0dp"
                 app:layout_constraintGuide_percent="0.2"
                 />
 
-            <!-- Toggle between typing and writing mode -->
-            <ToggleButton
-                android:id="@+id/noteType"
-
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-
-                app:layout_constraintTop_toTopOf="parent"
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="4dp"
+                android:text="Save"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/bottomGuideline"
-
-                />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

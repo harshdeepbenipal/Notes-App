@@ -1,161 +1,63 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
 
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="match_parent">
 
-    android:id="@+id/noteNavigation"
-    >
+    <!-- MAIN CONTENT -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <!-- Navigation layout-->
-    <!-- XML layout (after login screen) where access notes -->
-
-    <!-- UI of the notes (where notes are) -> Recycler view -->
-
-
-    <!-- Reference used for Toolbar: -->
-    <!-- https://www.geeksforgeeks.org/android/toolbar-in-android-with-example/ -->
-
-    <!-- Toolbar should stay visible even when scrolling-->
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/barGuideline"
-
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-
-        app:layout_constraintGuide_begin="0dp"
-        app:layout_constraintGuide_percent="0.15"
-        />
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/barGuideline"
-        app:layout_constraintTop_toTopOf="parent"
-
-        app:layout_constraintVertical_bias="0.0"
-        >
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
+            android:layout_height="100dp">
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/leftGuideline"
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-
-                app:layout_constraintGuide_begin="0dp"
-                app:layout_constraintGuide_percent="0.2"
-                />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/rightGuideline"
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-
-                app:layout_constraintGuide_begin="0dp"
-                app:layout_constraintGuide_percent="0.8"
-                />
-            
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/black" />
 
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+        </com.google.android.material.appbar.AppBarLayout>
 
-                android:background="@color/black"
-                />
+        <ImageButton
+            android:id="@+id/optionsButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/menu_icon"
+            android:layout_margin="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
-            <!-- Buttons can eventually be replaced by clickable icons -->
+        <ImageButton
+            android:id="@+id/createButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/add"
+            android:layout_margin="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-            <!-- Button for options -->
-            <!-- Where access to settings + Trash are (in pop up side menu) -->
-            <ImageButton
-                android:id="@+id/optionsButton"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="10dp"
+            app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/leftGuideline"
-
-                android:src="@drawable/menu_icon"
-
-                />
-
-            <!-- Create a new note Button -->
-            <!-- Can also be moved to bottom left for easier access? -->
-            <ImageButton
-                android:id="@+id/createButton"
-
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@id/rightGuideline"
-                app:layout_constraintEnd_toEndOf="parent"
-
-                android:src="@drawable/add"
-                />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- Recycler View -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-
-        android:layout_margin="10dp"
-        />
-
-    <!-- NAVIGATION SIDE BAR -->
-
-    <!-- REFERENCED USED FOR THIS -->
-    <!-- geeksforgeeks.org/android/navigation-drawer-in-android/ -->
-
+    <!-- SIDEBAR -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
-
-        android:layout_width="wrap_content"
+        android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        app:menu="@menu/menu_navigation"/>
 
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-
-        app:menu="@menu/menu_navigation"
-        />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

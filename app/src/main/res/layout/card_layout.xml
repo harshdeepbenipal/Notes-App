@@ -1,61 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-
-    android:layout_gravity="center"
-
-    android:layout_margin="24dp"
-
+    android:layout_width="160dp"
+    android:layout_height="200dp"
     app:cardCornerRadius="20dp"
-
-    android:id="@+id/cardLayout"
-    >
-
-    <!-- XML Layout for note item in navigation recycler view -->
+    android:layout_margin="12dp">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
-
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
+        android:layout_height="match_parent"
         android:orientation="vertical"
+        android:padding="12dp">
 
-        android:padding="15dp"
-        >
-
-        <!-- Thumbnail of note possible, or maybe just color coding -->
-
-        <ImageView
-            android:id="@+id/noteThumbnail"
-
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-
-            android:layout_gravity="center_horizontal"
-            />
-
-        <!-- Title of the Note -->
+        <!-- Title -->
         <TextView
             android:id="@+id/noteTitle"
-
-            android:layout_width="100dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-
-            android:layout_marginTop="5dp"
-
             android:text="Title"
             android:textSize="16sp"
-            android:textAlignment="center"
-            />
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
+        <!-- Content Preview -->
+        <TextView
+            android:id="@+id/notePreview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="Preview"
+            android:textSize="14sp"
+            android:ellipsize="end"
+            android:scrollHorizontally="false"
+            android:scrollbars="vertical"
+            android:maxLines="6"/>
+        <TextView
+            android:id="@+id/noteTimestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Last edited: ..."
+            android:textSize="12sp"
+            android:textColor="#666"
+            android:layout_marginTop="4dp"/>
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>
-
