@@ -1,27 +1,35 @@
 package ca.yorku.eecs4443.notesapp;
 
-// Class for the data of the note item in navigation
+import com.google.firebase.Timestamp;
+
 public class NoteItemData {
 
+    private String id;        // Firestore document ID
     private String title;
+    private String content;   // Full note content
     private int thumbnail;
+    private Timestamp lastModified; // NEW: timestamp of last modification
 
-    public NoteItemData(String title, int thumbnail) {
+    // Constructor
+    public NoteItemData(String id, String title, String content, int thumbnail, Timestamp lastModified) {
+        this.id = id;
         this.title = title;
+        this.content = content;
         this.thumbnail = thumbnail;
+        this.lastModified = lastModified;
     }
 
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    // Getters
+    public String getId() { return id; }
+    public String getTitle() { return title; }
+    public String getContent() { return content; }
+    public int getThumbnail() { return thumbnail; }
+    public Timestamp getLastModified() { return lastModified; }
 
-    public int getThumbnail() {
-        return thumbnail;
-    }
-    public void setThumbnail(int thumbnail) {
-        this.thumbnail = thumbnail;
-    }
+    // Setters
+    public void setId(String id) { this.id = id; }
+    public void setTitle(String title) { this.title = title; }
+    public void setContent(String content) { this.content = content; }
+    public void setThumbnail(int thumbnail) { this.thumbnail = thumbnail; }
+    public void setLastModified(Timestamp lastModified) { this.lastModified = lastModified; }
 }
