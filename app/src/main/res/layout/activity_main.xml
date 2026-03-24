@@ -194,6 +194,8 @@
         android:clickable="true"
         android:text="LOGIN"
         android:textSize="16sp"
+
+        android:backgroundTint="@color/button"
         />
 
     <!-- New user text -->
@@ -234,6 +236,8 @@
         android:text="REGISTER HERE"
         android:checked="true"
         android:textSize="16sp"
+
+        android:textColor="@color/link"
 
         />
 
