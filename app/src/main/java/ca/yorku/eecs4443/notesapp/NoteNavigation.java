@@ -2,8 +2,10 @@ package ca.yorku.eecs4443.notesapp;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -11,12 +13,14 @@ import android.content.Intent;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageButton;
+
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.android.material.navigation.NavigationView;
 
 public class NoteNavigation extends AppCompatActivity {
 
@@ -24,6 +28,7 @@ public class NoteNavigation extends AppCompatActivity {
     private ArrayList<NoteItemData> recyclerDataArrayList;
     private RecyclerViewAdapter adapter;
     private DrawerLayout drawerLayout;
+
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
 
@@ -45,38 +50,58 @@ public class NoteNavigation extends AppCompatActivity {
         }
 
         String userId = mAuth.getCurrentUser().getUid();
+
         recyclerDataArrayList = new ArrayList<>();
-        adapter = new RecyclerViewAdapter(recyclerDataArrayList, this);
+        adapter = new RecyclerViewAdapter(recyclerDataArrayList, this,false);
         recyclerView.setAdapter(adapter);
 
         int cardWidth = 180;
         int numCol = calColumns(getApplicationContext(), cardWidth);
         recyclerView.setLayoutManager(new GridLayoutManager(this, numCol));
 
-        // Load notes sorted by lastModified descending
+        // ONLY SHOW NON-DELETED NOTES
         db.collection("users")
                 .document(userId)
                 .collection("notes")
                 .orderBy("lastModified", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
-                    if (error != null) { Log.e("Firestore", "Error: ", error); return; }
+
+                    if (error != null) {
+                        Log.e("Firestore", "Error: ", error);
+                        return;
+                    }
+
                     if (value != null) {
                         recyclerDataArrayList.clear();
+
                         for (QueryDocumentSnapshot doc : value) {
+                            //THIS IS THE IMPORTANT FIX
+                            Boolean isDeleted = doc.getBoolean("isDeleted");
+                            if (isDeleted != null && isDeleted) continue;
+
                             String title = doc.getString("title");
-                            if (title == null) title = "Untitled Note";
                             String content = doc.getString("content");
                             Timestamp lastMod = doc.getTimestamp("lastModified");
+
                             recyclerDataArrayList.add(
-                                    new NoteItemData(doc.getId(), title, content != null ? content : "", R.drawable.note, lastMod)
+                                    new NoteItemData(
+                                            doc.getId(),
+                                            title != null ? title : "Untitled",
+                                            content != null ? content : "",
+                                            R.drawable.note,
+                                            lastMod
+                                    )
                             );
                         }
+
                         adapter.notifyDataSetChanged();
                     }
                 });
 
         ImageButton menuButton = findViewById(R.id.optionsButton);
-        menuButton.setOnClickListener(v -> drawerLayout.openDrawer(android.view.Gravity.LEFT));
+        menuButton.setOnClickListener(v ->
+                drawerLayout.openDrawer(GravityCompat.START)
+        );
 
         ImageButton createButton = findViewById(R.id.createButton);
         createButton.setOnClickListener(v -> {
@@ -85,6 +110,28 @@ public class NoteNavigation extends AppCompatActivity {
             intent.putExtra("title", "");
             intent.putExtra("content", "");
             startActivity(intent);
+        });
+
+        NavigationView navView = findViewById(R.id.nav_view);
+        navView.setNavigationItemSelectedListener(item -> {
+
+            int id = item.getItemId();
+
+            if (id == R.id.nav_notes) {
+                drawerLayout.closeDrawers();
+                return true;
+            }
+
+            if (id == R.id.nav_settings) {
+                startActivity(new Intent(this, SettingsActivity.class));
+            }
+
+            if (id == R.id.nav_trash) {
+                startActivity(new Intent(this, TrashActivity.class));
+            }
+
+            drawerLayout.closeDrawers();
+            return true;
         });
     }
 

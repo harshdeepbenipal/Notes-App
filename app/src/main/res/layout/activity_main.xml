@@ -90,34 +90,35 @@
         android:layout_marginTop="25dp"
         android:gravity="center"
 
-        android:text="Welcome!"
+        android:text="ScRibble"
         android:textSize="40sp"
         android:textAlignment="center"
         />
 
     <!-- Short greeting text -->
+
+    <!-- Username enter field -->
     <TextView
         android:id="@+id/greeting"
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginText"
+        android:gravity="center"
+        android:text="Ready to note?"
+        android:textAlignment="center"
+        android:textSize="14sp"
+
         app:layout_constraintBottom_toTopOf="@id/enterGuideline"
 
-        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
 
-        android:text="Ready to note?"
-        android:textSize="14sp"
-        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/loginText"
 
-        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintVertical_bias="0.0" />
 
-        />
-
-    <!-- Username enter field -->
     <EditText
         android:id="@+id/username"
         android:layout_width="300dp"
@@ -236,6 +237,9 @@
         android:text="REGISTER HERE"
         android:checked="true"
         android:textSize="16sp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
 
         android:textColor="@color/link"
 

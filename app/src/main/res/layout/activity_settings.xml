@@ -3,25 +3,26 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
-    android:id="@+id/trash_drawer_layout"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <!-- MAIN CONTENT -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/trashRecovery"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!-- SAME GUIDELINE AS NOTES -->
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/barGuideline"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.15"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.15"/>
 
+        <!-- BLUE TOP BAR -->
         <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/trashAppBarLayout"
+            android:id="@+id/appBarLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
 
@@ -34,8 +35,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+                <!-- BACKGROUND BAR -->
                 <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/trashToolbar"
+                    android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/transparent"
@@ -44,12 +46,11 @@
 
                 <!-- MENU BUTTON -->
                 <ImageButton
-                    android:id="@+id/trashOptionsButton"
+                    android:id="@+id/optionsButton"
                     android:layout_width="50dp"
                     android:layout_height="70dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/menu_icon"
-
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
@@ -58,37 +59,39 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Trash"
+                    android:text="Settings"
                     android:textSize="18sp"
                     android:textStyle="bold"
-
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-                <!-- RESTORE -->
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- RECYCLER -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/trashRecyclerView"
-            android:layout_width="0dp"
+        <!-- CONTENT -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_margin="10dp"
+            android:orientation="vertical"
+            android:gravity="center"
 
-            app:layout_constraintTop_toBottomOf="@id/trashAppBarLayout"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <Button
+                android:id="@+id/logoutButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Logout"/>
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- DRAWER MENU (SAME AS MAIN) -->
+    <!-- DRAWER -->
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/trash_nav_view"
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"

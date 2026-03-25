@@ -1,26 +1,23 @@
 package ca.yorku.eecs4443.notesapp;
 
 import android.os.Bundle;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import android.view.View;
 import android.widget.*;
 import android.content.Intent;
 
-// Firebase imports
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button LoginButton;
+    private EditText emailEditText, passwordEditText;
 
-    // Firebase
     private FirebaseAuth mAuth;
 
     @Override
@@ -36,8 +33,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         LoginButton = findViewById(R.id.loginButton);
+        emailEditText = findViewById(R.id.username);   // ADD THESE
+        passwordEditText = findViewById(R.id.password);
 
-        // Initialize Firebase
+        TextView register = findViewById(R.id.register);
+
         mAuth = FirebaseAuth.getInstance();
 
         // Auto-login if already signed in
@@ -47,27 +47,35 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
-        // TEMP LOGIN (for testing)
-        LoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        register.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+        });
 
-                String email = "test@test.com";
-                String password = "123456";
+        LoginButton.setOnClickListener(v -> {
 
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(MainActivity.this, "Login Success", Toast.LENGTH_SHORT).show();
+            String email = emailEditText.getText().toString().trim();
+            String password = passwordEditText.getText().toString().trim();
 
-                                Intent intent = new Intent(MainActivity.this, NoteNavigation.class);
-                                startActivity(intent);
-                                finish();
-                            } else {
-                                Toast.makeText(MainActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Enter email & password", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+
+                            Toast.makeText(MainActivity.this,
+                                    "Logged in as: " + mAuth.getCurrentUser().getEmail(),
+                                    Toast.LENGTH_LONG).show();
+
+                            startActivity(new Intent(MainActivity.this, NoteNavigation.class));
+                            finish();
+
+                        } else {
+                            Toast.makeText(MainActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
     }
 }

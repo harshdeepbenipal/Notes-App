@@ -23,8 +23,9 @@
 
         <activity android:name=".NoteNavigation" />
         <activity android:name=".NoteEditingActivity" />
-        <activity android:name=".NoteDetailActivity" />
-
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".TrashActivity" />
     </application>
 
 </manifest>

@@ -81,28 +81,27 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
 
-                app:layout_constraintGuide_begin="0dp"
-                app:layout_constraintGuide_percent="0.2"
-                />
+                app:layout_constraintGuide_begin="50dp"
+                app:layout_constraintGuide_percent="0.2" />
 
-            <!-- Back Button (Returns to note navigation -->
+            <!-- Back Button (Returns to note navigation) -->
             <ImageButton
                 android:id="@+id/backButton"
 
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="72dp"
+                android:layout_height="66dp"
 
-                android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
                 android:backgroundTint="@color/button"
-
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/LeftGuideline"
+                android:scaleType="fitCenter"
 
                 android:src="@drawable/back"
-                />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/LeftGuideline"
+                app:layout_constraintHorizontal_bias="1.0"
+
+                app:layout_constraintStart_toStartOf="@+id/editToolbar"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -215,27 +214,61 @@
                 app:layout_constraintGuide_begin="0dp"
                 app:layout_constraintGuide_percent="0.8"
                 />
+                <LinearLayout
+                android:id="@+id/toolbarButtons"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:padding="4dp"
+                android:weightSum="5">
 
-            <!-- Save Button -->
-            <ImageButton
-                android:id="@+id/saveButton"
+                    <ImageButton
+                        android:id="@+id/boldButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Bold"
+                        android:padding="0dp"
+                        android:src="@drawable/ic_bold" />
 
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                <ImageButton
+                    android:id="@+id/italicButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_italic"
+                    android:contentDescription="Italic"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
 
-                android:scaleType="fitCenter"
-                android:adjustViewBounds="true"
-                android:backgroundTint="@color/button"
+                    <ImageButton
+                        android:id="@+id/underlineButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Underline"
+                        android:src="@drawable/ic_underline" />
 
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toEndOf="@id/bottomRightGuideline"
+                    <ImageButton
+                    android:id="@+id/highlightButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_highlight"
+                    android:contentDescription="Highlight"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
 
-                app:layout_constraintHorizontal_bias="1.0"
-
-                android:src="@drawable/save"
-                />
+                <ImageButton
+                    android:id="@+id/fontSizeButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_font_size"
+                    android:contentDescription="Font Size"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+            </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

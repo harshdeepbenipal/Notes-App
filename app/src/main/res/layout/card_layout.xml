@@ -32,8 +32,8 @@
             android:text="Preview"
             android:textSize="14sp"
             android:ellipsize="end"
-            android:scrollHorizontally="false"
-            android:scrollbars="vertical"
+            android:lineSpacingExtra="1dp"
+            android:scrollbars="none"
             android:maxLines="6"/>
         <TextView
             android:id="@+id/noteTimestamp"

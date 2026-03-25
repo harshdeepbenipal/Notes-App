@@ -49,4 +49,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation("androidx.cardview:cardview:1.0.0")
+    implementation("jp.wasabeef:richeditor-android:2.0.0")
 }
