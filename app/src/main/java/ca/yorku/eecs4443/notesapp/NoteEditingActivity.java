@@ -192,8 +192,11 @@ public class NoteEditingActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> {
             if (!readOnly) {
                 handler.removeCallbacks(saveRunnable);
-                saveNote();
-                Toast.makeText(this, "Note saved!", Toast.LENGTH_SHORT).show();
+                if (saveNote()) {
+                    Toast.makeText(this, "Note saved!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Empty note, not saved!", Toast.LENGTH_SHORT).show();
+                }
             }
             finish();
         });
@@ -258,9 +261,7 @@ public class NoteEditingActivity extends AppCompatActivity {
         // --- Formatting buttons ---
         boldButton.setOnClickListener(v -> {
             isBoldActive = !isBoldActive;
-
-            // Optional: change button appearance when active
-            boldButton.setAlpha(isBoldActive ? 1.0f : 0.5f);
+            boldButton.setAlpha(isBoldActive ? 0.35f : 1.0f);
 
             int start = contentEditText.getSelectionStart();
             int end = contentEditText.getSelectionEnd();
@@ -322,7 +323,7 @@ public class NoteEditingActivity extends AppCompatActivity {
             popup.setOnMenuItemClickListener(item -> {
                 currentFontSize = Integer.parseInt(item.getTitle().toString());
 
-                // ALSO apply to selected text
+                // apply to selected text
                 int start = contentEditText.getSelectionStart();
                 int end = contentEditText.getSelectionEnd();
                 if (start != end && start >= 0 && end >= 0) {
@@ -342,15 +343,6 @@ public class NoteEditingActivity extends AppCompatActivity {
             popup.show();
         });
 
-    }
-
-    // Handle system back button
-    @Override
-    public void onBackPressed() {
-        handler.removeCallbacks(saveRunnable);
-        saveNote();
-        Toast.makeText(this, "Note saved!", Toast.LENGTH_SHORT).show();
-        super.onBackPressed();
     }
     private void toggleBoldOnSelection(EditText editText, int start, int end) {
         Spannable text = editText.getText();
@@ -372,11 +364,17 @@ public class NoteEditingActivity extends AppCompatActivity {
         }
     }
 
-    private void saveNote() {
-        if (mAuth.getCurrentUser() == null) return;
+    private boolean saveNote() {
+        String updatedTitle = titleEditText.getText().toString().trim();
+        String contentText = contentEditText.getText().toString().trim();
+
+        // Prevent completely empty note
+        if (updatedTitle.isEmpty() && contentText.isEmpty()) {
+            return false; // do NOT save anything
+        }
+        if (mAuth.getCurrentUser() == null) return false;
 
         String userId = mAuth.getCurrentUser().getUid();
-        String updatedTitle = titleEditText.getText().toString().trim();
 
         Spannable text = contentEditText.getText();
 
@@ -411,6 +409,8 @@ public class NoteEditingActivity extends AppCompatActivity {
                 .collection("notes")
                 .document(noteId)
                 .set(updates);
+
+        return true;
     }
     private void toggleItalicOnSelection(EditText editText, int start, int end) {
         Spannable text = editText.getText();

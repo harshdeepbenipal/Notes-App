@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -29,9 +27,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
 
-        app:layout_constraintGuide_begin="0dp"
-        app:layout_constraintGuide_percent="0.2"
-        />
+        app:layout_constraintGuide_begin="234dp"
+        app:layout_constraintGuide_percent="0.2" />
 
     <!-- Guideline horizonal of end of enter fields -->
     <androidx.constraintlayout.widget.Guideline
@@ -57,57 +54,52 @@
         app:layout_constraintGuide_percent="0.95"
         />
 
-    <!-- Register text -->
     <TextView
         android:id="@+id/registerText"
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topGuideline"
-        app:layout_constraintBottom_toTopOf="@id/enterGuideline"
-
-        android:layout_marginTop="25dp"
         android:gravity="center"
-
         android:text="Register"
-        android:textSize="40sp"
         android:textAlignment="center"
-        />
 
-    <!-- Short greeting text -->
+        android:textSize="40sp"
+
+        app:layout_constraintBottom_toTopOf="@id/enterGuideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.989" />
+
     <TextView
         android:id="@+id/greeting"
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/registerText"
+        android:gravity="center"
+        android:text="Create an account to note from anywhere"
+        android:textAlignment="center"
+        android:textSize="14sp"
+
         app:layout_constraintBottom_toTopOf="@id/enterGuideline"
 
-        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
 
-        android:text="Create an account to note from anywhere"
-        android:textSize="14sp"
-        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/registerText"
 
-        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintVertical_bias="0.0" />
 
-        />
-
-    <!-- Username enter field -->
     <EditText
         android:id="@+id/username"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-
-
         android:autofillHints="username"
-        android:hint="Username"
+        android:hint="Email"
         android:inputType="textVisiblePassword"
 
         app:layout_constraintBottom_toTopOf="@id/password"
@@ -219,5 +211,36 @@
         android:backgroundTint="@color/button"
 
         />
+    <!-- Guideline for backbutton-->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/LeftGuideline"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+
+        app:layout_constraintGuide_begin="122dp"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <!-- Back Button (Returns to note navigation) -->
+    <ImageButton
+        android:id="@+id/backButton"
+
+        android:layout_width="60dp"
+        android:layout_height="61dp"
+
+        android:layout_marginEnd="8dp"
+        android:adjustViewBounds="true"
+        android:backgroundTint="@color/button"
+
+        android:scaleType="fitCenter"
+        android:src="@drawable/back"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        app:layout_constraintEnd_toStartOf="@id/LeftGuideline"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.07" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

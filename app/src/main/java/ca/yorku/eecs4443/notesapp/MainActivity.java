@@ -38,6 +38,25 @@ public class MainActivity extends AppCompatActivity {
 
         TextView register = findViewById(R.id.register);
 
+        CheckBox show = findViewById(R.id.show);
+
+        show.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Show password
+                passwordEditText.setTransformationMethod(
+                        android.text.method.HideReturnsTransformationMethod.getInstance()
+                );
+            } else {
+                // Hide password
+                passwordEditText.setTransformationMethod(
+                        android.text.method.PasswordTransformationMethod.getInstance()
+                );
+            }
+
+            // Keep cursor at end after toggle
+            passwordEditText.setSelection(passwordEditText.getText().length());
+        });
+
         mAuth = FirebaseAuth.getInstance();
 
         // Auto-login if already signed in
@@ -46,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, NoteNavigation.class));
             finish();
         }
+
 
         register.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, RegisterActivity.class));
@@ -56,8 +76,15 @@ public class MainActivity extends AppCompatActivity {
             String email = emailEditText.getText().toString().trim();
             String password = passwordEditText.getText().toString().trim();
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Enter email & password", Toast.LENGTH_SHORT).show();
+            if (email.isEmpty()) {
+                emailEditText.setError("Email is required");
+                emailEditText.requestFocus();
+                return;
+            }
+
+            if (password.isEmpty()) {
+                passwordEditText.setError("Password is required");
+                passwordEditText.requestFocus();
                 return;
             }
 
@@ -73,7 +100,43 @@ public class MainActivity extends AppCompatActivity {
                             finish();
 
                         } else {
-                            Toast.makeText(MainActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
+
+                            String errorCode = ((com.google.firebase.auth.FirebaseAuthException)
+                                    task.getException()).getErrorCode();
+
+                            switch (errorCode) {
+
+                                case "ERROR_USER_NOT_FOUND":
+                                    Toast.makeText(MainActivity.this,
+                                            "No account found with this email",
+                                            Toast.LENGTH_SHORT).show();
+                                    break;
+
+                                case "ERROR_WRONG_PASSWORD":
+                                    Toast.makeText(MainActivity.this,
+                                            "Incorrect password",
+                                            Toast.LENGTH_SHORT).show();
+                                    break;
+
+                                case "ERROR_INVALID_CREDENTIAL":
+                                    // Covers general invalid login cases
+                                    Toast.makeText(MainActivity.this,
+                                            "Invalid email or password",
+                                            Toast.LENGTH_SHORT).show();
+                                    break;
+
+                                case "ERROR_INVALID_EMAIL":
+                                    Toast.makeText(MainActivity.this,
+                                            "Invalid email format",
+                                            Toast.LENGTH_SHORT).show();
+                                    break;
+
+                                default:
+                                    Toast.makeText(MainActivity.this,
+                                            "Login failed: " + errorCode,
+                                            Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
                         }
                     });
         });

@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.ImageButton;
 
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -32,12 +33,17 @@ public class NoteNavigation extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
 
+    private EditText searchBar;
+    private ArrayList<NoteItemData> fullList; // keeps original notes
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navigation_activity);
 
         recyclerView = findViewById(R.id.recyclerView);
+        searchBar = findViewById(R.id.searchBar);
+        fullList = new ArrayList<>();
         drawerLayout = findViewById(R.id.drawer_layout);
 
         db = FirebaseFirestore.getInstance();
@@ -73,9 +79,10 @@ public class NoteNavigation extends AppCompatActivity {
 
                     if (value != null) {
                         recyclerDataArrayList.clear();
+                        fullList.clear();
 
                         for (QueryDocumentSnapshot doc : value) {
-                            //THIS IS THE IMPORTANT FIX
+
                             Boolean isDeleted = doc.getBoolean("isDeleted");
                             if (isDeleted != null && isDeleted) continue;
 
@@ -83,15 +90,16 @@ public class NoteNavigation extends AppCompatActivity {
                             String content = doc.getString("content");
                             Timestamp lastMod = doc.getTimestamp("lastModified");
 
-                            recyclerDataArrayList.add(
-                                    new NoteItemData(
-                                            doc.getId(),
-                                            title != null ? title : "Untitled",
-                                            content != null ? content : "",
-                                            R.drawable.note,
-                                            lastMod
-                                    )
+                            NoteItemData note = new NoteItemData(
+                                    doc.getId(),
+                                    title != null ? title : "Untitled",
+                                    content != null ? content : "",
+                                    R.drawable.note,
+                                    lastMod
                             );
+
+                            recyclerDataArrayList.add(note);
+                            fullList.add(note);
                         }
 
                         adapter.notifyDataSetChanged();
@@ -133,6 +141,18 @@ public class NoteNavigation extends AppCompatActivity {
             drawerLayout.closeDrawers();
             return true;
         });
+        searchBar.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterNotes(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
     }
 
     public int calColumns(Context context, float columnWidthDP) {
@@ -140,4 +160,44 @@ public class NoteNavigation extends AppCompatActivity {
         float screenWidthDP = displayMetrics.widthPixels / displayMetrics.density;
         return (int) (screenWidthDP / columnWidthDP + 0.5);
     }
+    private void filterNotes(String query) {
+        if (query.trim().isEmpty()) {
+            recyclerDataArrayList.clear();
+            recyclerDataArrayList.addAll(fullList);
+            adapter.notifyDataSetChanged();
+            return;
+        }
+
+        ArrayList<NoteItemData> filteredList = new ArrayList<>();
+        String[] keywords = query.toLowerCase().split(" ");
+
+        for (NoteItemData note : fullList) {
+            String title = note.getTitle().toLowerCase();
+            String content = note.getContent().toLowerCase();
+
+            boolean matchesAll = true;
+
+            for (String word : keywords) {
+                if (!title.contains(word) && !content.contains(word)) {
+                    matchesAll = false;
+                    break;
+                }
+            }
+
+            if (matchesAll) {
+                filteredList.add(note);
+            }
+        }
+
+        recyclerDataArrayList.clear();
+        recyclerDataArrayList.addAll(filteredList);
+        adapter.notifyDataSetChanged();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        searchBar.setText(""); // clears search
+    }
+
 }

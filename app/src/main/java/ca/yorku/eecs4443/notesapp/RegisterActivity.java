@@ -32,6 +32,11 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            finish(); // closes RegisterActivity and goes back to MainActivity
+        });
+
         // Show password toggle
         show.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -57,8 +62,21 @@ public class RegisterActivity extends AppCompatActivity {
             String confirmPass = confirmPassword.getText().toString().trim();
 
             // Validation
-            if (email.isEmpty() || pass.isEmpty() || confirmPass.isEmpty()) {
-                Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show();
+            if (email.isEmpty()) {
+                username.setError("Email is required");
+                username.requestFocus();
+                return;
+            }
+
+            if (pass.isEmpty()) {
+                password.setError("Password is required");
+                password.requestFocus();
+                return;
+            }
+
+            if (confirmPass.isEmpty()) {
+                confirmPassword.setError("Confirm your password");
+                confirmPassword.requestFocus();
                 return;
             }
 
