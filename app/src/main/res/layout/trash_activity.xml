@@ -45,10 +45,13 @@
                 <!-- MENU BUTTON -->
                 <ImageButton
                     android:id="@+id/trashOptionsButton"
-                    android:layout_width="50dp"
-                    android:layout_height="70dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/menu_icon"
+
+                    android:layout_width="47dp"
+                    android:layout_height="47dp"
+                    android:layout_marginLeft="10dp"
+
+                    android:background="@drawable/menu_icon"
+                    android:backgroundTint="#5E6A80"
 
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
