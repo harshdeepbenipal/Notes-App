@@ -98,10 +98,64 @@
                 android:src="@drawable/back"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/LeftGuideline"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
 
                 app:layout_constraintStart_toStartOf="@+id/editToolbar"
-                app:layout_constraintTop_toTopOf="parent" />
+                />
+
+            <!-- Edit tool options -->
+
+            <!-- Draw Button -->
+            <ImageButton
+                android:id="@+id/draw"
+
+                android:layout_width="47dp"
+                android:layout_height="47dp"
+
+                android:layout_marginRight="10dp"
+
+                android:background="@drawable/draw"
+                android:backgroundTint="#5E6A80"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+            <!-- Redo Button -->
+            <ImageButton
+                android:id="@+id/redo"
+
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+
+                android:layout_marginRight="30dp"
+
+                android:background="@drawable/redo"
+                android:backgroundTint="#5E6A80"
+
+                app:layout_constraintEnd_toStartOf="@id/draw"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+            <!-- Undo Button -->
+            <ImageButton
+                android:id="@+id/undo"
+
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+
+                android:layout_marginRight="20dp"
+
+                android:background="@drawable/undo"
+                android:backgroundTint="#5E6A80"
+
+                app:layout_constraintEnd_toStartOf="@id/redo"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

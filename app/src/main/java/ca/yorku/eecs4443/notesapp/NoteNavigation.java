@@ -61,7 +61,8 @@ public class NoteNavigation extends AppCompatActivity {
         adapter = new RecyclerViewAdapter(recyclerDataArrayList, this,false);
         recyclerView.setAdapter(adapter);
 
-        int cardWidth = 180;
+        // Works on Cassandra's phone, if possible would be nice to get the sizes of the card width
+        int cardWidth = 200;
         int numCol = calColumns(getApplicationContext(), cardWidth);
         recyclerView.setLayoutManager(new GridLayoutManager(this, numCol));
 
