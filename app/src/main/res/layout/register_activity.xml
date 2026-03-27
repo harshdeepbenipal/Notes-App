@@ -223,6 +223,7 @@
         app:layout_constraintGuide_percent="0.2" />
 
     <!-- Back Button (Returns to note navigation) -->
+    <!-- 5E6A80 -->
     <ImageButton
         android:id="@+id/backButton"
 
@@ -231,10 +232,12 @@
 
         android:layout_marginEnd="8dp"
         android:adjustViewBounds="true"
-        android:backgroundTint="@color/button"
 
         android:scaleType="fitCenter"
-        android:src="@drawable/back"
+
+        android:background="@drawable/back"
+        android:backgroundTint="@color/button"
+
         app:layout_constraintBottom_toBottomOf="parent"
 
         app:layout_constraintEnd_toStartOf="@id/LeftGuideline"
