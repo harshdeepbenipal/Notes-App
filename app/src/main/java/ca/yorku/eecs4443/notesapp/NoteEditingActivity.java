@@ -46,7 +46,7 @@ public class NoteEditingActivity extends AppCompatActivity {
     EditText editor;
     int currentFontSize = 16;
 
-    private ImageButton boldButton, italicButton, underlineButton, highlightButton, fontSizeButton;
+    private ImageButton boldButton, italicButton, underlineButton, highlightButton, fontSizeButton, bulletButton, undoButton, redoButton, drawButton;
     private boolean isBoldActive = false;
     private boolean isItalicActive = false;
     private boolean isUnderlineActive = false;
@@ -89,6 +89,12 @@ public class NoteEditingActivity extends AppCompatActivity {
         underlineButton = findViewById(R.id.underlineButton);
         highlightButton = findViewById(R.id.highlightButton);
         fontSizeButton = findViewById(R.id.fontSizeButton);
+        bulletButton = findViewById(R.id.bulletButton);
+
+        // Tool Bar Buttons
+        undoButton = findViewById(R.id.undo);
+        redoButton = findViewById(R.id.redo);
+        drawButton = findViewById(R.id.draw);
 
         // Inside onCreate() after loading note content
         boolean readOnly = getIntent().getBooleanExtra("readOnly", false);
@@ -107,6 +113,12 @@ public class NoteEditingActivity extends AppCompatActivity {
             underlineButton.setVisibility(View.GONE);
             highlightButton.setVisibility(View.GONE);
             fontSizeButton.setVisibility(View.GONE);
+            bulletButton.setVisibility(View.GONE);
+
+            // Hide Toolbar Buttons
+            undoButton.setVisibility(View.GONE);
+            redoButton.setVisibility(View.GONE);
+            drawButton.setVisibility(View.GONE);
 
             // Remove autosave TextWatchers
             titleEditText.removeTextChangedListener(simpleWatcher);

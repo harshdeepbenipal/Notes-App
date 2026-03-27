@@ -78,11 +78,28 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
-            android:gravity="center"
+            android:gravity="center_horizontal"
+
+            android:paddingHorizontal="10dp"
 
             app:layout_constraintTop_toBottomOf="@id/appBarLayout"
             app:layout_constraintBottom_toBottomOf="parent">
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/darkMode"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+
+                android:text="Dark Mode  "
+                android:textSize="20sp"
+
+                android:layout_marginTop="20dp"
+                />
+
+
+            <!-- Log out Button -->
             <Button
                 android:id="@+id/logoutButton"
                 android:layout_width="200dp"
@@ -90,8 +107,11 @@
                 android:text="Logout"
 
                 android:textSize="16sp"
+                android:layout_marginTop="50dp"
 
                 android:backgroundTint="@color/button"
+
+                android:gravity="center_horizontal"
                 />
         </LinearLayout>
 
