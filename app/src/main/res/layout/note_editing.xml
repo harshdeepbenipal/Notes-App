@@ -178,7 +178,7 @@
         android:id="@+id/noteTitleEdit"
 
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
 
         android:hint="Title"
         android:textSize="20sp"
@@ -268,14 +268,18 @@
                 app:layout_constraintGuide_begin="0dp"
                 app:layout_constraintGuide_percent="0.8"
                 />
-                <LinearLayout
+
+            <LinearLayout
                 android:id="@+id/toolbarButtons"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:padding="4dp"
-                android:weightSum="5">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="@id/bottomToolbar"
+                android:weightSum="6">
 
                     <ImageButton
                         android:id="@+id/boldButton"
@@ -287,14 +291,14 @@
                         android:padding="0dp"
                         android:src="@drawable/ic_bold" />
 
-                <ImageButton
-                    android:id="@+id/italicButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_italic"
-                    android:contentDescription="Italic"
-                    android:background="?attr/selectableItemBackgroundBorderless"/>
+                    <ImageButton
+                        android:id="@+id/italicButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_italic"
+                        android:contentDescription="Italic"
+                        android:background="?attr/selectableItemBackgroundBorderless"/>
 
                     <ImageButton
                         android:id="@+id/underlineButton"
@@ -306,22 +310,31 @@
                         android:src="@drawable/ic_underline" />
 
                     <ImageButton
-                    android:id="@+id/highlightButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_highlight"
-                    android:contentDescription="Highlight"
-                    android:background="?attr/selectableItemBackgroundBorderless"/>
+                        android:id="@+id/highlightButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_highlight"
+                        android:contentDescription="Highlight"
+                        android:background="?attr/selectableItemBackgroundBorderless"/>
 
-                <ImageButton
-                    android:id="@+id/fontSizeButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_font_size"
-                    android:contentDescription="Font Size"
-                    android:background="?attr/selectableItemBackgroundBorderless"/>
+                    <ImageButton
+                        android:id="@+id/fontSizeButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_font_size"
+                        android:contentDescription="Font Size"
+                        android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                    <ImageButton
+                        android:id="@+id/bulletButton"
+                        android:layout_width="0dp"
+                        android:layout_height="30dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/bullet_list_svgrepo_com"
+                        android:contentDescription="Bullet Points"
+                        android:background="?attr/selectableItemBackgroundBorderless"/>
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
