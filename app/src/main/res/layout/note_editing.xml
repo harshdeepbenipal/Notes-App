@@ -273,9 +273,9 @@
                 android:id="@+id/toolbarButtons"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:padding="4dp"
+                android:padding="0dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="@id/bottomToolbar"
@@ -283,13 +283,16 @@
 
                     <ImageButton
                         android:id="@+id/boldButton"
+
                         android:layout_width="wrap_content"
                         android:layout_height="40dp"
                         android:layout_weight="1"
+
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Bold"
+                        android:src="@drawable/ic_bold"
                         android:padding="0dp"
-                        android:src="@drawable/ic_bold" />
+                        android:contentDescription="Bold"
+                        />
 
                     <ImageButton
                         android:id="@+id/italicButton"
@@ -303,7 +306,7 @@
                     <ImageButton
                         android:id="@+id/underlineButton"
                         android:layout_width="0dp"
-                        android:layout_height="56dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="Underline"
