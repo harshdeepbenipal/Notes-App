@@ -85,34 +85,46 @@
             app:layout_constraintTop_toBottomOf="@id/appBarLayout"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/darkMode"
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-
-                android:text="Dark Mode  "
-                android:textSize="20sp"
-
-                android:layout_marginTop="20dp"
-                />
-
 
             <!-- Log out Button -->
+
+            <RadioGroup
+                android:id="@+id/themeRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/radioLight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Light" />
+
+                <RadioButton
+                    android:id="@+id/radioDark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dark" />
+
+                <RadioButton
+                    android:id="@+id/radioSystem"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Use device setting" />
+            </RadioGroup>
+
             <Button
                 android:id="@+id/logoutButton"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:text="Logout"
-
-                android:textSize="16sp"
                 android:layout_marginTop="50dp"
 
                 android:backgroundTint="@color/button"
-
                 android:gravity="center_horizontal"
-                />
+
+                android:text="Logout"
+
+                android:textSize="16sp" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

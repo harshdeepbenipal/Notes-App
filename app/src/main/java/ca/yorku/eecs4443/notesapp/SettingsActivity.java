@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -15,32 +17,61 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Button logoutButton;
     private FirebaseAuth mAuth;
-
     private DrawerLayout drawerLayout;
+
+    private RadioGroup themeRadioGroup;
+    private RadioButton radioLight, radioDark, radioSystem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ThemePreferenceHelper.applyTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        // Firebase
         mAuth = FirebaseAuth.getInstance();
 
-        // Views
         logoutButton = findViewById(R.id.logoutButton);
         drawerLayout = findViewById(R.id.drawer_layout);
+
+        themeRadioGroup = findViewById(R.id.themeRadioGroup);
+        radioLight = findViewById(R.id.radioLight);
+        radioDark = findViewById(R.id.radioDark);
+        radioSystem = findViewById(R.id.radioSystem);
 
         ImageButton menuButton = findViewById(R.id.optionsButton);
         NavigationView navView = findViewById(R.id.nav_view);
 
-        // OPEN DRAWER WHEN CLICKING 3 LINES
+        String savedMode = ThemePreferenceHelper.getThemeMode(this);
+        switch (savedMode) {
+            case ThemePreferenceHelper.MODE_LIGHT:
+                radioLight.setChecked(true);
+                break;
+            case ThemePreferenceHelper.MODE_DARK:
+                radioDark.setChecked(true);
+                break;
+            default:
+                radioSystem.setChecked(true);
+                break;
+        }
+
+        themeRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radioLight) {
+                ThemePreferenceHelper.saveThemeMode(this, ThemePreferenceHelper.MODE_LIGHT);
+            } else if (checkedId == R.id.radioDark) {
+                ThemePreferenceHelper.saveThemeMode(this, ThemePreferenceHelper.MODE_DARK);
+            } else if (checkedId == R.id.radioSystem) {
+                ThemePreferenceHelper.saveThemeMode(this, ThemePreferenceHelper.MODE_SYSTEM);
+            }
+
+            ThemePreferenceHelper.applyTheme(this);
+            recreate();
+        });
+
         menuButton.setOnClickListener(v -> {
             drawerLayout.openDrawer(android.view.Gravity.START);
         });
 
-        // HANDLE NAVIGATION MENU
         navView.setNavigationItemSelectedListener(item -> {
-
             int id = item.getItemId();
 
             if (id == R.id.nav_notes) {
@@ -59,7 +90,6 @@ public class SettingsActivity extends AppCompatActivity {
             return true;
         });
 
-        // LOGOUT BUTTON
         logoutButton.setOnClickListener(v -> {
             mAuth.signOut();
 
