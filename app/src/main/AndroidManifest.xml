@@ -20,9 +20,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".NoteEditingActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" >
+        </activity>
 
         <activity android:name=".NoteNavigation" />
-        <activity android:name=".NoteEditingActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".TrashActivity" />

@@ -51,9 +51,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         String contentHtml = note.getContent();
         if (contentHtml != null && !contentHtml.isEmpty()) {
             try {
-                Spanned preview = Html.fromHtml(contentHtml, Html.FROM_HTML_MODE_LEGACY);
-                holder.notePreviewTV.setText(preview, TextView.BufferType.SPANNABLE);
-                holder.notePreviewTV.setMaxLines(3);
+                Spanned preview = formatContent(contentHtml);
+                holder.notePreviewTV.setText(preview);
+                holder.notePreviewTV.setMaxLines(4);
+                holder.notePreviewTV.setEllipsize(android.text.TextUtils.TruncateAt.END);
             } catch (Exception e) {
                 String plain = Html.fromHtml(contentHtml, Html.FROM_HTML_MODE_COMPACT).toString();
                 holder.notePreviewTV.setText(
@@ -203,5 +204,23 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 .collection("notes")
                 .document(noteId)
                 .update("isDeleted", true);
+    }
+    private Spanned formatContent(String html) {
+        if (html == null || html.isEmpty()) {
+            return new android.text.SpannableString("");
+        }
+
+        // Clean up HTML list formatting
+        html = html.replace("<ul>", "")
+                .replace("</ul>", "")
+                .replace("<ol>", "")
+                .replace("</ol>", "")
+                .replace("<li>", "• ")
+                .replace("</li>", "<br>");
+
+        // Remove excessive line breaks
+        html = html.replaceAll("(<br>\\s*){2,}", "<br>");
+
+        return Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT);
     }
 }
