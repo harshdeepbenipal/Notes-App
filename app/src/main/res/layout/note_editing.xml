@@ -108,52 +108,49 @@
             <ImageButton
                 android:id="@+id/draw"
 
-                android:layout_width="47dp"
-                android:layout_height="47dp"
+                android:layout_width="34dp"
+                android:layout_height="39dp"
 
                 android:layout_marginRight="10dp"
 
                 android:background="@drawable/draw"
                 android:backgroundTint="#5E6A80"
 
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Redo Button -->
             <ImageButton
                 android:id="@+id/redo"
 
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="28dp"
+                android:layout_height="33dp"
 
                 android:layout_marginRight="30dp"
 
                 android:background="@drawable/redo"
                 android:backgroundTint="#5E6A80"
 
-                app:layout_constraintEnd_toStartOf="@id/draw"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                />
+                app:layout_constraintEnd_toStartOf="@id/draw"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Undo Button -->
             <ImageButton
                 android:id="@+id/undo"
 
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="26dp"
+                android:layout_height="31dp"
 
                 android:layout_marginRight="20dp"
 
                 android:background="@drawable/undo"
                 android:backgroundTint="#5E6A80"
 
-                app:layout_constraintEnd_toStartOf="@id/redo"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                />
+                app:layout_constraintEnd_toStartOf="@id/redo"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -209,9 +206,10 @@
                 android:textSize="16sp"
                 android:gravity="top"
                 android:padding="8dp"
-                android:inputType="textMultiLine"
+                android:inputType="textMultiLine|textNoSuggestions"
                 android:scrollbars="vertical"
                 android:overScrollMode="ifContentScrolls"
+                android:background="@null"
                 />
 
             <!-- Drawing container -->
@@ -281,9 +279,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
 
-                app:layout_constraintGuide_begin="0dp"
-                app:layout_constraintGuide_percent="0.8"
-                />
+                app:layout_constraintGuide_begin="349dp"
+                app:layout_constraintGuide_percent="0.8" />
 
             <LinearLayout
                 android:id="@+id/toolbarButtons"
@@ -297,63 +294,53 @@
                 app:layout_constraintTop_toTopOf="@id/bottomToolbar"
                 android:weightSum="6">
 
-                    <ImageButton
-                        android:id="@+id/boldButton"
+                <ImageButton
+                    android:id="@+id/boldButton"
 
-                        android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
+                    android:layout_width="77dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
 
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_bold"
-                        android:padding="0dp"
-                        android:contentDescription="Bold"
-                        />
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Bold"
+                    android:padding="0dp"
+                    android:src="@drawable/ic_bold" />
 
-                    <ImageButton
-                        android:id="@+id/italicButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:src="@drawable/ic_italic"
-                        android:contentDescription="Italic"
-                        android:background="?attr/selectableItemBackgroundBorderless"/>
+                <ImageButton
+                    android:id="@+id/italicButton"
+                    android:layout_width="54dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Italic"
+                    android:src="@drawable/ic_italic" />
 
-                    <ImageButton
-                        android:id="@+id/underlineButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Underline"
-                        android:src="@drawable/ic_underline" />
+                <ImageButton
+                    android:id="@+id/underlineButton"
+                    android:layout_width="65dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Underline"
+                    android:src="@drawable/ic_underline" />
 
-                    <ImageButton
-                        android:id="@+id/highlightButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:src="@drawable/ic_highlight"
-                        android:contentDescription="Highlight"
-                        android:background="?attr/selectableItemBackgroundBorderless"/>
+                <ImageButton
+                    android:id="@+id/highlightButton"
+                    android:layout_width="74dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Highlight"
+                    android:src="@drawable/ic_highlight" />
 
-                    <ImageButton
-                        android:id="@+id/checkboxButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:src="@drawable/ic_checkbox"
-                        android:contentDescription="Check Box"
-                        android:background="?attr/selectableItemBackgroundBorderless"/>
-
-                    <ImageButton
-                        android:id="@+id/bulletButton"
-                        android:layout_width="0dp"
-                        android:layout_height="30dp"
-                        android:layout_weight="1"
-                        android:src="@drawable/bullet_list_svgrepo_com"
-                        android:contentDescription="Bullet Points"
-                        android:background="?attr/selectableItemBackgroundBorderless"/>
+                <ImageButton
+                    android:id="@+id/bulletButton"
+                    android:layout_width="55dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Bullet Points"
+                    android:src="@drawable/bullet_list_svgrepo_com" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

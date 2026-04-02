@@ -1,5 +1,7 @@
 package ca.yorku.eecs4443.notesapp;
 
+import static android.content.Intent.getIntent;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -9,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
@@ -57,21 +60,124 @@ public class NoteEditingActivity extends AppCompatActivity {
     private boolean isItalicActive = false;
     private boolean isUnderlineActive = false;
     private boolean isHighlightActive = false;
+    private EditText currentWatcherEditText = null;
     private Stack<CharSequence> undoStack = new Stack<>();
     private Stack<CharSequence> redoStack = new Stack<>();
     private FrameLayout drawCanvasContainer;
     private DrawingView drawingView;
 
     // Autosave watcher
-    private final TextWatcher simpleWatcher = new TextWatcher() {
-        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+    private final TextWatcher masterWatcher = new TextWatcher() {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            currentWatcherEditText = (titleEditText.getText() == s) ? titleEditText : contentEditText;
+        }
+
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             handler.removeCallbacks(saveRunnable);
             saveRunnable = () -> saveNote();
             handler.postDelayed(saveRunnable, 1000);
         }
-        @Override public void afterTextChanged(Editable s) {}
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (currentWatcherEditText == null) return;
+            // Detect newline and continue bullet
+            if (s.length() > 0) {
+                currentWatcherEditText.post(() -> {
+                    int cursor = currentWatcherEditText.getSelectionStart();
+                    Editable editable = currentWatcherEditText.getText();
+
+                    if (cursor > 0 && editable.charAt(cursor - 1) == '\n') {
+
+                        currentWatcherEditText.postDelayed(() -> {
+                            int newCursor = currentWatcherEditText.getSelectionStart();
+                            Editable editableText = currentWatcherEditText.getText();
+
+                            int prevLineStart = editableText.toString().lastIndexOf('\n', newCursor - 2);
+                            prevLineStart = (prevLineStart == -1) ? 0 : prevLineStart + 1;
+
+                            int prevLineEnd = newCursor - 1;
+
+                            BulletSpan[] spans = editableText.getSpans(prevLineStart, prevLineEnd, BulletSpan.class);
+
+                            if (spans.length > 0) {
+                                int insertPos = newCursor;
+
+                                // Ensure line has content
+                                if (insertPos <= editableText.length()) {
+                                    editableText.insert(insertPos, " ");
+
+                                    editableText.setSpan(
+                                            new BulletSpan(20, isDarkMode() ? Color.WHITE : Color.BLACK),
+                                            insertPos,
+                                            insertPos + 1,
+                                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                                    );
+                                }
+                            }
+                        }, 10); // small delay for timing
+                    }
+                });
+            }
+            int cursor = currentWatcherEditText.getSelectionStart();
+            if (cursor <= 0) return;
+
+            int charStart = cursor - 1;
+            int charEnd = cursor;
+
+            if (currentWatcherEditText == contentEditText) {
+                // Content: Rich formatting
+                boolean isBullet = isBulletLine(s, charStart);
+                handleTypingSpan(s, charStart, charEnd, isBoldActive, Typeface.BOLD);
+                handleTypingSpan(s, charStart, charEnd, isItalicActive, Typeface.ITALIC);
+                handleUnderline(s, charStart, charEnd, isUnderlineActive);
+                if (isHighlightActive) {
+                        handleHighlight(s, charStart, charEnd, true);
+                }
+            } else {
+                // Title: Strip formatting
+                stripAllFormatting(s);
+            }
+            updateFormattingState();
+        }
+
+        private void stripAllFormatting(Editable s) {
+            StyleSpan[] styleSpans = s.getSpans(0, s.length(), StyleSpan.class);
+            for (StyleSpan span : styleSpans) s.removeSpan(span);
+            UnderlineSpan[] uSpans = s.getSpans(0, s.length(), UnderlineSpan.class);
+            for (UnderlineSpan span : uSpans) s.removeSpan(span);
+            BackgroundColorSpan[] hSpans = s.getSpans(0, s.length(), BackgroundColorSpan.class);
+            for (BackgroundColorSpan span : hSpans) s.removeSpan(span);
+        }
+
+        private void handleTypingSpan(Editable s, int start, int end, boolean active, int style) {
+            StyleSpan[] spans = s.getSpans(start, end, StyleSpan.class);
+
+            if (active) {
+                boolean hasStyle = false;
+                for (StyleSpan span : spans) {
+                    if (span.getStyle() == style) { hasStyle = true; break; }
+                }
+                if (!hasStyle) {
+                    s.setSpan(new StyleSpan(style), start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                }
+            } else {
+                for (StyleSpan span : spans) {
+                    if (span.getStyle() == style) {
+                        int spanStart = s.getSpanStart(span);
+                        int spanEnd = s.getSpanEnd(span);
+                        s.removeSpan(span);
+                        if (spanStart < start) {
+                            s.setSpan(new StyleSpan(style), spanStart, start, Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+                        }
+                        if (spanEnd > end) {
+                            s.setSpan(new StyleSpan(style), end, spanEnd, Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+                        }
+                    }
+                }
+            }
+        }
     };
 
     @Override
@@ -115,25 +221,6 @@ public class NoteEditingActivity extends AppCompatActivity {
             }
             return false;
         });
-        titleEditText.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (titleEditText.getLineCount() > 4) {
-                    int cursor = titleEditText.getSelectionStart();
-
-                    if (cursor > 0) {
-                        titleEditText.getText().delete(cursor - 1, cursor);
-                    }
-
-                    contentEditText.requestFocus();
-                    contentEditText.setSelection(contentEditText.getText().length());
-                }
-            }
-
-            @Override public void afterTextChanged(Editable s) {}
-        });
 
         backButton = findViewById(R.id.backButton);
         boldButton = findViewById(R.id.boldButton);
@@ -141,10 +228,28 @@ public class NoteEditingActivity extends AppCompatActivity {
         underlineButton = findViewById(R.id.underlineButton);
         highlightButton = findViewById(R.id.highlightButton);
         bulletButton = findViewById(R.id.bulletButton);
-        checkboxButton = findViewById(R.id.checkboxButton);
         undoButton = findViewById(R.id.undo);
         redoButton = findViewById(R.id.redo);
         drawButton = findViewById(R.id.draw);
+
+        contentEditText.setInputType(
+                android.text.InputType.TYPE_CLASS_TEXT |
+                        android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE |
+                        android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
+                        android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        );
+        contentEditText.setOnTouchListener((v, event) -> {
+            v.post(() -> updateFormattingState());
+            return false;
+        });
+
+        contentEditText.setOnKeyListener((v, keyCode, event) -> {
+            v.post(() -> updateFormattingState());
+            return false;
+        });
+        contentEditText.setOnEditorActionListener((v, actionId, event) -> {
+            return false;
+        });
 
         // Read-only mode
         boolean readOnly = getIntent().getBooleanExtra("readOnly", false);
@@ -159,7 +264,6 @@ public class NoteEditingActivity extends AppCompatActivity {
             underlineButton.setVisibility(View.GONE);
             highlightButton.setVisibility(View.GONE);
             bulletButton.setVisibility(View.GONE);
-            checkboxButton.setVisibility(View.GONE);
             undoButton.setVisibility(View.GONE);
             redoButton.setVisibility(View.GONE);
             drawButton.setVisibility(View.GONE);
@@ -183,60 +287,14 @@ public class NoteEditingActivity extends AppCompatActivity {
             try {
                 Spanned spanned = Html.fromHtml(noteContent, Html.FROM_HTML_MODE_COMPACT);
                 contentEditText.setText(spanned);
-                Editable content = contentEditText.getText();
-                applyBullets(contentEditText.getText());
+                applyBullets(contentEditText.getText());;
             } catch (Exception e) {
                 contentEditText.setText(noteContent);
             }
         }
-
         // Add autosave watcher
-        titleEditText.addTextChangedListener(simpleWatcher);
-        contentEditText.addTextChangedListener(new TextWatcher() {
-            private boolean ignoreChange = false;
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (ignoreChange) return;
-
-                if (count == 1 && s.charAt(start) == '\n') { // Enter pressed
-                    ignoreChange = true;
-                    Editable text = contentEditText.getText();
-
-                    // Find current line
-                    int lineStart = text.toString().lastIndexOf('\n', start - 1);
-                    lineStart = (lineStart == -1) ? 0 : lineStart + 1;
-                    int lineEnd = start;
-
-                    BulletSpan[] spans = text.getSpans(lineStart, lineEnd, BulletSpan.class);
-                    String lineText = text.subSequence(lineStart, lineEnd).toString().trim();
-
-                    if (spans.length > 0) {
-                        // CONTINUE/EXIT bullet list
-                        if (lineText.isEmpty()) {
-                            for (BulletSpan span : spans) text.removeSpan(span);
-                        } else {
-                            int newLineStart = start + 1;
-                            text.insert(newLineStart, " ");
-                            text.setSpan(new BulletSpan(20, Color.BLACK), newLineStart, newLineStart + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            contentEditText.setSelection(newLineStart + 1);
-                        }
-                    } else if (lineText.startsWith("☐") || lineText.startsWith("☑")) {
-                        // Continue checkbox list
-                        text.insert(start + 1, "☐ ");
-                        contentEditText.setSelection(start + 3);
-                    }
-
-                    ignoreChange = false;
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+        titleEditText.addTextChangedListener(masterWatcher);
+        contentEditText.addTextChangedListener(masterWatcher);
 
         // --- Formatting buttons ---
         backButton.setOnClickListener(v -> {
@@ -255,19 +313,86 @@ public class NoteEditingActivity extends AppCompatActivity {
             }
         });
 
-        boldButton.setOnClickListener(v -> toggleFormat(Typeface.BOLD, boldButton));
-        italicButton.setOnClickListener(v -> toggleFormat(Typeface.ITALIC, italicButton));
-        underlineButton.setOnClickListener(v -> toggleFormatUnderline(underlineButton));
-        highlightButton.setOnClickListener(v -> toggleFormatHighlight(highlightButton));
+        boldButton.setOnClickListener(v -> {
+            ensureContentFocused();
+            isBoldActive = !isBoldActive;
 
+            int start = contentEditText.getSelectionStart();
+            int end = contentEditText.getSelectionEnd();
+
+            if (start != end) {
+                applyStyleToSelection(Typeface.BOLD, isBoldActive);
+            } else {
+                if (isBoldActive) applyTypingSpan(new StyleSpan(Typeface.BOLD));
+                updateCursorFormattingPreview();
+            }
+
+            updateButtonState(boldButton, isBoldActive);
+        });
+
+        italicButton.setOnClickListener(v -> {
+            ensureContentFocused();
+            isItalicActive = !isItalicActive;
+
+            int start = contentEditText.getSelectionStart();
+            int end = contentEditText.getSelectionEnd();
+
+            if (start != end) {
+                applyStyleToSelection(Typeface.ITALIC, isItalicActive);
+            } else {
+                if (isItalicActive) applyTypingSpan(new StyleSpan(Typeface.ITALIC));
+                updateCursorFormattingPreview();
+            }
+
+            updateButtonState(italicButton, isItalicActive);
+        });
+
+        underlineButton.setOnClickListener(v -> {
+            ensureContentFocused();
+            isUnderlineActive = !isUnderlineActive;
+
+            int start = contentEditText.getSelectionStart();
+            int end = contentEditText.getSelectionEnd();
+            Editable s = contentEditText.getText();
+
+            if (start != end) {
+                handleUnderline(s, start, end, isUnderlineActive);
+            } else {
+                if (isUnderlineActive) applyTypingSpan(new UnderlineSpan());
+                updateCursorFormattingPreview();
+            }
+
+            updateButtonState(underlineButton, isUnderlineActive);
+        });
+
+        highlightButton.setOnClickListener(v -> {
+            ensureContentFocused();
+            isHighlightActive = !isHighlightActive;
+
+            int start = contentEditText.getSelectionStart();
+            int end = contentEditText.getSelectionEnd();
+            Editable s = contentEditText.getText();
+
+            if (start != end) {
+                handleHighlight(s, start, end, isHighlightActive);
+            } else {
+                if (isHighlightActive) {
+                    applyTypingSpan(new BackgroundColorSpan(Color.parseColor("#8A6D00")));
+                }
+                updateCursorFormattingPreview();
+            }
+
+            updateButtonState(highlightButton, isHighlightActive);
+        });
         bulletButton.setOnClickListener(v -> {
             ensureContentFocused();
-            toggleBulletOnCurrentLine(contentEditText);
+            toggleBullet(contentEditText);
+
+            boolean isBulletActive = isBulletLine(contentEditText.getText(),
+                    contentEditText.getSelectionStart());
+            updateButtonState(bulletButton, isBulletActive);
         });
-        checkboxButton.setOnClickListener(v -> {
-            ensureContentFocused();
-            toggleCheckboxToolbar(contentEditText);
-        });
+
         drawButton.setOnClickListener(v -> {
             if (drawingView == null) {
                 drawingView = new DrawingView(this);
@@ -305,57 +430,6 @@ public class NoteEditingActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void toggleFormat(int style, ImageButton button) {
-        ensureContentFocused();
-        Spannable text = contentEditText.getText();
-        int start = contentEditText.getSelectionStart();
-        int end = contentEditText.getSelectionEnd();
-        if (style == Typeface.BOLD) isBoldActive = !isBoldActive;
-        if (style == Typeface.ITALIC) isItalicActive = !isItalicActive;
-        button.setAlpha((style == Typeface.BOLD ? isBoldActive : isItalicActive) ? 0.35f : 1.0f);
-
-        if (start != end) {
-            StyleSpan[] spans = text.getSpans(start, end, StyleSpan.class);
-            boolean hasStyle = false;
-            for (StyleSpan span : spans) {
-                if (span.getStyle() == style) {
-                    hasStyle = true;
-                    text.removeSpan(span);
-                }
-            }
-            if (!hasStyle) text.setSpan(new StyleSpan(style), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-    }
-
-    private void toggleFormatUnderline(ImageButton button) {
-        ensureContentFocused();
-        isUnderlineActive = !isUnderlineActive;
-        button.setAlpha(isUnderlineActive ? 0.35f : 1.0f);
-        int start = contentEditText.getSelectionStart();
-        int end = contentEditText.getSelectionEnd();
-        if (start != end) {
-            Spannable text = contentEditText.getText();
-            UnderlineSpan[] spans = text.getSpans(start, end, UnderlineSpan.class);
-            if (spans.length > 0) for (UnderlineSpan span : spans) text.removeSpan(span);
-            else text.setSpan(new UnderlineSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-    }
-
-    private void toggleFormatHighlight(ImageButton button) {
-        ensureContentFocused();
-        isHighlightActive = !isHighlightActive;
-        button.setAlpha(isHighlightActive ? 0.35f : 1.0f);
-        int start = contentEditText.getSelectionStart();
-        int end = contentEditText.getSelectionEnd();
-        if (start != end) {
-            Spannable text = contentEditText.getText();
-            BackgroundColorSpan[] spans = text.getSpans(start, end, BackgroundColorSpan.class);
-            if (spans.length > 0) for (BackgroundColorSpan span : spans) text.removeSpan(span);
-            else text.setSpan(new BackgroundColorSpan(Color.YELLOW), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-    }
-
     private void ensureContentFocused() {
         if (!contentEditText.hasFocus()) {
             contentEditText.requestFocus();
@@ -370,7 +444,9 @@ public class NoteEditingActivity extends AppCompatActivity {
         if (updatedTitle.isEmpty() && contentText.isEmpty()) return false;
         if (mAuth.getCurrentUser() == null) return false;
 
-        String htmlContent = convertSpannableToHtmlWithBullets(contentEditText.getText());
+        Spannable content = contentEditText.getText();
+
+        String htmlContent = convertSpannableToHtmlFull(content);
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("title", updatedTitle);
@@ -390,193 +466,311 @@ public class NoteEditingActivity extends AppCompatActivity {
                 });
         return true;
     }
-    private void toggleBulletOnCurrentLine(EditText editText) {
+    private void toggleBullet(EditText editText) {
         Editable text = editText.getText();
-        int cursor = editText.getSelectionStart();
 
-        int lineStart = text.toString().lastIndexOf('\n', cursor - 1);
-        lineStart = (lineStart == -1) ? 0 : lineStart + 1;
+        int start = editText.getSelectionStart();
+        int end = editText.getSelectionEnd();
 
-        int lineEnd = text.toString().indexOf('\n', lineStart);
-        lineEnd = (lineEnd == -1) ? text.length() : lineEnd;
+        if (start < 0 || end < 0) return;
 
-        BulletSpan[] spans = text.getSpans(lineStart, lineEnd, BulletSpan.class);
-        for (BulletSpan span : spans) {
-            text.removeSpan(span);
+        // Normalize selection
+        if (start > end) {
+            int temp = start;
+            start = end;
+            end = temp;
         }
 
-        if (spans.length == 0) {
-            // Add bullet
+        // Expand to full lines
+        start = text.toString().lastIndexOf('\n', start - 1);
+        start = (start == -1) ? 0 : start + 1;
+
+        end = text.toString().indexOf('\n', end);
+        end = (end == -1) ? text.length() : end;
+
+        int lineStart = start;
+
+        while (lineStart <= end) {
+
+            int lineEnd = text.toString().indexOf('\n', lineStart);
+            if (lineEnd == -1) lineEnd = text.length();
+
+            // Ensure line has at least 1 char
             if (lineStart == lineEnd) {
                 text.insert(lineStart, " ");
                 lineEnd = lineStart + 1;
             }
 
-            text.setSpan(
-                    new BulletSpan(20, Color.BLACK),
-                    lineStart,
-                    lineEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            );
-        }
-    }
-    private String convertSpannableToHtmlWithBullets(Spannable text) {
-        StringBuilder html = new StringBuilder();
-        boolean inList = false;
+            BulletSpan[] spans = text.getSpans(lineStart, lineEnd, BulletSpan.class);
 
-        int start = 0;
-        String fullText = text.toString();
-
-        while (start < fullText.length()) {
-            int lineEnd = fullText.indexOf('\n', start);
-            if (lineEnd == -1) lineEnd = fullText.length();
-
-            String line = fullText.substring(start, lineEnd);
-            BulletSpan[] spans = text.getSpans(start, lineEnd, BulletSpan.class);
-
-            // FIXED: Detect by "• " prefix OR BulletSpan (works with invisible spans)
-            boolean isBulletLine = line.startsWith("• ") || spans.length > 0;
-
-            String content;
-            if (isBulletLine) {
-                // Extract content after "• "
-                content = line.startsWith("• ") ? line.substring(2).trim() : line.trim();
-                if (!inList) {
-                    html.append("<ul>");
-                    inList = true;
-                }
-                html.append("<li>").append(Html.escapeHtml(content)).append("</li>");
-            } else {
-                content = line.trim();
-                if (inList) {
-                    html.append("</ul>");
-                    inList = false;
-                }
-                if (!content.isEmpty()) {
-                    html.append(Html.escapeHtml(content)).append("<br>");
-                }
-            }
-
-            start = lineEnd + 1;
-        }
-
-        if (inList) html.append("</ul>");
-        return html.toString();
-    }
-    private void applyBullets(Editable text) {
-        int start = 0;
-
-        while (start < text.length()) {
-            int lineEnd = text.toString().indexOf('\n', start);
-            if (lineEnd == -1) lineEnd = text.length();
-
-            BulletSpan[] bulletSpans = text.getSpans(start, lineEnd, BulletSpan.class);
-            String lineText = text.subSequence(start, lineEnd).toString();
-
-            if (bulletSpans.length > 0) {
-                // Remove old spans
-                for (BulletSpan span : bulletSpans) {
+            if (spans.length > 0) {
+                for (BulletSpan span : spans) {
                     text.removeSpan(span);
                 }
-
-                // Ensure "• " prefix
-                if (!lineText.startsWith("• ")) {
-                    text.insert(start, "• ");
-                    lineEnd += 2;
-                }
-
-                // Add INVISIBLE BulletSpan for Enter detection ONLY (gap=0)
+            } else {
                 text.setSpan(
-                        new BulletSpan(0, Color.TRANSPARENT),  // 0 gap, invisible
-                        start,
+                        new BulletSpan(20, isDarkMode() ? Color.WHITE : Color.BLACK),
+                        lineStart,
                         lineEnd,
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 );
             }
 
-            start = lineEnd + 1;
+            lineStart = lineEnd + 1;
         }
     }
-    private void toggleCheckboxToolbar(EditText editText) {
-        Editable text = editText.getText();
-        int cursor = editText.getSelectionStart();
+    private String convertSpannableToHtmlFull(Spannable text) {
+        StringBuilder html = new StringBuilder();
+        boolean inBulletList = false;
 
-        int lineStart = text.toString().lastIndexOf('\n', cursor - 1);
-        lineStart = (lineStart == -1) ? 0 : lineStart + 1;
+        String[] lines = text.toString().split("\n");
+        int currentPos = 0;
 
-        int lineEnd = text.toString().indexOf('\n', lineStart);
-        if (lineEnd == -1) lineEnd = text.length();
+        for (String line : lines) {
+            int lineStart = currentPos;
+            int lineEnd = currentPos + line.length();
 
-        String lineText = text.subSequence(lineStart, lineEnd).toString();
+            // Check for spans in this specific range
+            BulletSpan[] bulletSpans = text.getSpans(lineStart, lineEnd, BulletSpan.class);
+            boolean isBullet = bulletSpans.length > 0;
 
-        if (lineText.startsWith("☐") || lineText.startsWith("☑")) {
-            // Already has checkbox → remove it
-            text.delete(lineStart, lineStart + 2); // removes "☐ " or "☑ "
-            editText.setSelection(lineStart); // move cursor to start of line
-        } else {
-            // Add new unchecked checkbox
-            text.insert(lineStart, "☐ ");
-            editText.setSelection(lineStart + 2); // move cursor **after checkbox**
+            // Get the "clean" content of the line (preserving bold/italic)
+            CharSequence lineSeq = text.subSequence(lineStart, lineEnd);
+            String lineHtml = Html.toHtml(new SpannableStringBuilder(lineSeq), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
+                    .replaceAll("(?i)<p[^>]*>", "") // Remove <p>
+                    .replaceAll("</p>", "")         // Remove </p>
+                    .replace("•", "")               // Remove literal bullet chars to prevent doubles
+                    .trim();
+
+            // Handle List State
+            if (isBullet) {
+                if (!inBulletList) {
+                    html.append("<ul>");
+                    inBulletList = true;
+                }
+                html.append("<li>").append(lineHtml).append("</li>");
+            } else {
+                if (inBulletList) {
+                    html.append("</ul>");
+                    inBulletList = false;
+                } else if (!lineHtml.isEmpty()) {
+                    html.append(lineHtml).append("<br>");
+                }
+            }
+            currentPos = lineEnd + 1; // +1 for the newline
         }
 
-        // Make checkboxes clickable
-        applyClickableCheckboxes(editText);
+        if (inBulletList) html.append("</ul>");
+        return html.toString();
     }
-    private void applyClickableCheckboxes(EditText editText) {
-        Editable text = editText.getText();
+    private void applyBullets(Editable text) {
         int start = 0;
-
         while (start < text.length()) {
             int lineEnd = text.toString().indexOf('\n', start);
             if (lineEnd == -1) lineEnd = text.length();
 
-            // Make sure we have at least 1 character
-            if (lineEnd - start >= 1) {
-                char firstChar = text.charAt(start);
-                if (firstChar == '☐' || firstChar == '☑') {
+            // Get spans created by Html.fromHtml
+            BulletSpan[] spans = text.getSpans(start, lineEnd, BulletSpan.class);
 
-                    // Remove old spans
-                    ClickableSpan[] existing = text.getSpans(start, start + 1, ClickableSpan.class);
-                    for (ClickableSpan span : existing) text.removeSpan(span);
+            if (spans.length > 0) {
+                // Remove the default small Android bullet spans
+                for (BulletSpan span : spans) text.removeSpan(span);
 
-                    final int pos = start;
-                    text.setSpan(new ClickableSpan() {
-                        @Override
-                        public void onClick(View widget) {
-                            Editable editable = ((EditText) widget).getText();
-                            if (pos >= editable.length()) return; // Safety check
-                            char current = editable.charAt(pos);
-                            char replacement = current == '☐' ? '☑' : '☐';
-                            editable.replace(pos, pos + 1, String.valueOf(replacement));
-                        }
-
-                        @Override
-                        public void updateDrawState(TextPaint ds) {
-                            ds.setUnderlineText(false);
-                        }
-                    }, start, start + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
+                // Re-apply your custom BulletSpan with correct styling/padding
+                text.setSpan(
+                        new BulletSpan(20, isDarkMode() ? Color.WHITE : Color.BLACK),
+                        start,
+                        lineEnd,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
             }
-
             start = lineEnd + 1;
         }
-
-        editText.setMovementMethod(LinkMovementMethod.getInstance());
     }
-
     private void saveStateForUndo() {
         undoStack.push(contentEditText.getText().toString());
         redoStack.clear();
-    }
-    private boolean isBulletLine(Editable text, int lineStart, int lineEnd) {
-        String line = text.subSequence(lineStart, lineEnd).toString().trim();
-        BulletSpan[] spans = text.getSpans(lineStart, lineEnd, BulletSpan.class);
-        return line.startsWith("• ") || spans.length > 0;
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacksAndMessages(null);
     }
+    private boolean isDarkMode() {
+        int nightModeFlags = getResources().getConfiguration().uiMode
+                & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+        return nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+    }
+    private void applyTypingSpan(Object span) {
+        int start = contentEditText.getSelectionStart();
+        Editable text = contentEditText.getText();
 
+        // Use 0-length span at cursor
+        text.setSpan(span, start, start, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        contentEditText.setSelection(start);
+    }
+    private void applyActiveFormattingAtCursor() {
+        int cursor = contentEditText.getSelectionStart();
+        Editable text = contentEditText.getText();
+
+        if (isBoldActive) {
+            text.setSpan(new StyleSpan(Typeface.BOLD), cursor, cursor, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+        if (isItalicActive) {
+            text.setSpan(new StyleSpan(Typeface.ITALIC), cursor, cursor, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+        if (isUnderlineActive) {
+            text.setSpan(new UnderlineSpan(), cursor, cursor, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+        if (isHighlightActive) {
+            text.setSpan(new BackgroundColorSpan(Color.parseColor("#8A6D00")), cursor, cursor, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+    }
+    private void updateButtonState(ImageButton button, boolean isActive) {
+        if (isActive) {
+            button.setBackgroundResource(R.drawable.format_button_active);
+            button.setColorFilter(Color.WHITE); // icon color
+        } else {
+            button.setBackgroundResource(R.drawable.format_button_inactive);
+            button.setColorFilter(isDarkMode() ? Color.WHITE : Color.parseColor("#5E6A80"));
+        }
+    }
+    private void applyStyleToSelection(int style, boolean activate) {
+        int start = contentEditText.getSelectionStart();
+        int end = contentEditText.getSelectionEnd();
+        Editable s = contentEditText.getText();
+
+        if (activate) {
+            s.setSpan(new StyleSpan(style), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else {
+            StyleSpan[] spans = s.getSpans(start, end, StyleSpan.class);
+            for (StyleSpan span : spans) {
+                if (span.getStyle() == style) s.removeSpan(span);
+            }
+        }
+    }
+    private void updateCursorFormattingPreview() {
+        int cursor = contentEditText.getSelectionStart();
+        Editable text = contentEditText.getText();
+
+        // Apply ALL active formats as 0-length preview spans at cursor
+        if (isBoldActive) {
+            text.setSpan(new StyleSpan(Typeface.BOLD), cursor, cursor, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+        if (isItalicActive) {
+            text.setSpan(new StyleSpan(Typeface.ITALIC), cursor, cursor, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+        if (isUnderlineActive) {
+            text.setSpan(new UnderlineSpan(), cursor, cursor, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+        if (isHighlightActive) {
+            text.setSpan(new BackgroundColorSpan(Color.parseColor("#8A6D00")),
+                    cursor, cursor, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+    }
+    private boolean isBulletLine(Editable s, int start) {
+        int lineStart = s.toString().lastIndexOf('\n', start - 1);
+        lineStart = (lineStart == -1) ? 0 : lineStart + 1;
+
+        int lineEnd = s.toString().indexOf('\n', lineStart);
+        if (lineEnd == -1) lineEnd = s.length();
+
+        BulletSpan[] spans = s.getSpans(lineStart, lineEnd, BulletSpan.class);
+        return spans.length > 0;
+    }
+    private void handleUnderline(Editable s, int start, int end, boolean active) {
+        UnderlineSpan[] spans = s.getSpans(start, end, UnderlineSpan.class);
+
+        if (active) {
+            if (spans.length == 0) {
+                s.setSpan(new UnderlineSpan(), start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            }
+        } else {
+            for (UnderlineSpan span : spans) {
+                int spanStart = s.getSpanStart(span);
+                int spanEnd = s.getSpanEnd(span);
+
+                s.removeSpan(span);
+
+                if (spanStart < start) {
+                    s.setSpan(new UnderlineSpan(), spanStart, start, Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+                }
+                if (spanEnd > end) {
+                    s.setSpan(new UnderlineSpan(), end, spanEnd, Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+                }
+            }
+        }
+    }
+    private void handleHighlight(Editable s, int start, int end, boolean active) {
+        BackgroundColorSpan[] spans = s.getSpans(start, end, BackgroundColorSpan.class);
+
+        if (active) {
+            // Remove existing first (prevents conflicts)
+            for (BackgroundColorSpan span : spans) {
+                s.removeSpan(span);
+            }
+
+            s.setSpan(
+                    new BackgroundColorSpan(Color.parseColor("#8A6D00")),
+                    start,
+                    end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+
+        } else {
+            for (BackgroundColorSpan span : spans) {
+                int spanStart = s.getSpanStart(span);
+                int spanEnd = s.getSpanEnd(span);
+
+                s.removeSpan(span);
+
+                if (spanStart < start) {
+                    s.setSpan(new BackgroundColorSpan(Color.parseColor("#8A6D00")),
+                            spanStart, start, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                if (spanEnd > end) {
+                    s.setSpan(new BackgroundColorSpan(Color.parseColor("#8A6D00")),
+                            end, spanEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            }
+        }
+    }
+    private void updateFormattingState() {
+        int start = contentEditText.getSelectionStart();
+        int end = contentEditText.getSelectionEnd();
+        Editable s = contentEditText.getText();
+
+        if (start < 0) return;
+
+        int checkPos = (start == end && start > 0) ? start - 1 : start;
+
+        // Reset first
+        isBoldActive = false;
+        isItalicActive = false;
+        isUnderlineActive = false;
+        isHighlightActive = false;
+
+        // BOLD / ITALIC
+        StyleSpan[] styleSpans = s.getSpans(checkPos, checkPos + 1, StyleSpan.class);
+        for (StyleSpan span : styleSpans) {
+            if (span.getStyle() == Typeface.BOLD) isBoldActive = true;
+            if (span.getStyle() == Typeface.ITALIC) isItalicActive = true;
+        }
+
+        // UNDERLINE
+        isUnderlineActive = s.getSpans(checkPos, checkPos + 1, UnderlineSpan.class).length > 0;
+
+        // HIGHLIGHT
+        isHighlightActive = s.getSpans(checkPos, checkPos + 1, BackgroundColorSpan.class).length > 0;
+
+        // BULLET
+        boolean isBulletActive = isBulletLine(s, start);
+        updateButtonState(bulletButton, isBulletActive);
+
+        // Update UI
+        updateButtonState(boldButton, isBoldActive);
+        updateButtonState(italicButton, isItalicActive);
+        updateButtonState(underlineButton, isUnderlineActive);
+        updateButtonState(highlightButton, isHighlightActive);
+    }
 }
