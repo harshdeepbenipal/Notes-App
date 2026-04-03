@@ -47,7 +47,7 @@ public class NoteEditingActivity extends AppCompatActivity {
     private EditText titleEditText, contentEditText;
     private ImageButton backButton;
     private ImageButton boldButton, italicButton, underlineButton, highlightButton, checkboxButton, bulletButton;
-    private ImageButton undoButton, redoButton, drawButton;
+    private ImageButton undoButton, redoButton;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -65,8 +65,6 @@ public class NoteEditingActivity extends AppCompatActivity {
     private Stack<Editable> redoStack = new Stack<>();
     private Stack<Integer> undoCursorStack = new Stack<>();
     private Stack<Integer> redoCursorStack = new Stack<>();
-    private FrameLayout drawCanvasContainer;
-    private DrawingView drawingView;
     private boolean isRestoring = false;
     private Runnable undoRunnable;
 
@@ -202,9 +200,6 @@ public class NoteEditingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.note_editing);
 
-        drawCanvasContainer = findViewById(R.id.drawCanvasContainer);
-        drawingView = null; // starts with no drawing
-
         // Firebase
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -247,7 +242,6 @@ public class NoteEditingActivity extends AppCompatActivity {
         bulletButton = findViewById(R.id.bulletButton);
         undoButton = findViewById(R.id.undo);
         redoButton = findViewById(R.id.redo);
-        drawButton = findViewById(R.id.draw);
 
         contentEditText.setInputType(
                 android.text.InputType.TYPE_CLASS_TEXT |
@@ -283,7 +277,6 @@ public class NoteEditingActivity extends AppCompatActivity {
             bulletButton.setVisibility(View.GONE);
             undoButton.setVisibility(View.GONE);
             redoButton.setVisibility(View.GONE);
-            drawButton.setVisibility(View.GONE);
         }
 
         // Load intent data
@@ -309,6 +302,7 @@ public class NoteEditingActivity extends AppCompatActivity {
                 contentEditText.setText(noteContent);
             }
         }
+        // Add autosave watcher
         // Add autosave watcher
         titleEditText.addTextChangedListener(masterWatcher);
         contentEditText.addTextChangedListener(masterWatcher);
@@ -459,28 +453,6 @@ public class NoteEditingActivity extends AppCompatActivity {
             boolean isBulletActive = isBulletLine(contentEditText.getText(),
                     contentEditText.getSelectionStart());
             updateButtonState(bulletButton, isBulletActive);
-        });
-
-        drawButton.setOnClickListener(v -> {
-            if (drawingView == null) {
-                drawingView = new DrawingView(this);
-                drawCanvasContainer.addView(drawingView);
-                drawCanvasContainer.setVisibility(View.VISIBLE);
-
-                // Disable typing
-                titleEditText.setEnabled(false);
-                contentEditText.setEnabled(false);
-                Toast.makeText(this, "Drawing mode ON", Toast.LENGTH_SHORT).show();
-            } else {
-                drawCanvasContainer.setVisibility(View.GONE);
-                drawCanvasContainer.removeView(drawingView);
-                drawingView = null;
-
-                // Re-enable typing
-                titleEditText.setEnabled(true);
-                contentEditText.setEnabled(true);
-                Toast.makeText(this, "Drawing mode OFF", Toast.LENGTH_SHORT).show();
-            }
         });
         ConstraintLayout rootLayout = findViewById(R.id.noteEditingLayout);
         View bottomToolbar = findViewById(R.id.bottomBar);

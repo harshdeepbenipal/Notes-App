@@ -105,52 +105,40 @@
                 />
             <!-- Edit tool options -->
             <!-- Draw Button -->
-            <ImageButton
-                android:id="@+id/draw"
-
-                android:layout_width="34dp"
-                android:layout_height="39dp"
-
-                android:layout_marginRight="10dp"
-
-                android:background="@drawable/draw"
-                android:backgroundTint="#5E6A80"
-
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Redo Button -->
+
+            <!-- Undo Button -->
+
             <ImageButton
                 android:id="@+id/redo"
 
                 android:layout_width="28dp"
                 android:layout_height="33dp"
 
-                android:layout_marginRight="30dp"
+                android:layout_marginEnd="16dp"
 
                 android:background="@drawable/redo"
                 android:backgroundTint="#5E6A80"
-
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/draw"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.623" />
 
-            <!-- Undo Button -->
             <ImageButton
                 android:id="@+id/undo"
 
-                android:layout_width="26dp"
-                android:layout_height="31dp"
+                android:layout_width="28dp"
+                android:layout_height="34dp"
 
-                android:layout_marginRight="20dp"
-
+                android:layout_marginEnd="16dp"
                 android:background="@drawable/undo"
-                android:backgroundTint="#5E6A80"
 
+                android:backgroundTint="#5E6A80"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/redo"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.632" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -279,8 +267,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
 
-                app:layout_constraintGuide_begin="349dp"
-                app:layout_constraintGuide_percent="0.8" />
+                app:layout_constraintGuide_end="82dp" />
 
             <LinearLayout
                 android:id="@+id/toolbarButtons"

@@ -170,22 +170,34 @@ public class NoteNavigation extends AppCompatActivity {
         }
 
         ArrayList<NoteItemData> filteredList = new ArrayList<>();
-        String[] keywords = query.toLowerCase().split(" ");
+
+        String lowerQuery = query.toLowerCase().trim();
+        String noSpaceQuery = lowerQuery.replaceAll("\\s+", ""); // "7 3 7" -> "737"
+        String[] keywords = lowerQuery.split("\\s+"); // keep normal words
 
         for (NoteItemData note : fullList) {
+
             String title = note.getTitle().toLowerCase();
             String content = note.getContent().toLowerCase();
 
-            boolean matchesAll = true;
-
+            String titleNoSpace = title.replaceAll("\\s+", "");
+            String contentNoSpace = content.replaceAll("\\s+", "");
+            boolean matches = true;
+            // normal keyword match
             for (String word : keywords) {
+                if (word.isEmpty()) continue;
                 if (!title.contains(word) && !content.contains(word)) {
-                    matchesAll = false;
+                    matches = false;
                     break;
                 }
             }
-
-            if (matchesAll) {
+            //space-insensitive match
+            if (!matches) {
+                if (titleNoSpace.contains(noSpaceQuery) || contentNoSpace.contains(noSpaceQuery)) {
+                    matches = true;
+                }
+            }
+            if (matches) {
                 filteredList.add(note);
             }
         }

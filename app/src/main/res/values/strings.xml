@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Notes App</string>
+    <string name="app_name">Scribble</string>
 
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
