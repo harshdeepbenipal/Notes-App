@@ -77,7 +77,8 @@
         android:layout_marginTop="25dp"
         android:gravity="center"
 
-        android:text="ScRibble"
+        android:text="SCRIBBLE"
+        android:textStyle="italic"
         android:textSize="40sp"
         android:textAlignment="center"
         />

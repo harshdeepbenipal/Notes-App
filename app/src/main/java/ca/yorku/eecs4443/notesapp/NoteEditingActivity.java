@@ -61,27 +61,44 @@ public class NoteEditingActivity extends AppCompatActivity {
     private boolean isUnderlineActive = false;
     private boolean isHighlightActive = false;
     private EditText currentWatcherEditText = null;
-    private Stack<CharSequence> undoStack = new Stack<>();
-    private Stack<CharSequence> redoStack = new Stack<>();
+    private Stack<Editable> undoStack = new Stack<>();
+    private Stack<Editable> redoStack = new Stack<>();
+    private Stack<Integer> undoCursorStack = new Stack<>();
+    private Stack<Integer> redoCursorStack = new Stack<>();
     private FrameLayout drawCanvasContainer;
     private DrawingView drawingView;
+    private boolean isRestoring = false;
+    private Runnable undoRunnable;
 
     // Autosave watcher
     private final TextWatcher masterWatcher = new TextWatcher() {
-        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             currentWatcherEditText = (titleEditText.getText() == s) ? titleEditText : contentEditText;
+
+            if (isRestoring) return;
+
+            // Ignore cursor-only moves
+            if (count == 0 && after == 0) return;
+
+            // ONLY TRACKs CONTENT
+            if (currentWatcherEditText == contentEditText) {
+                saveStateForUndo();
+            }
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (isRestoring) return;
             handler.removeCallbacks(saveRunnable);
+
             saveRunnable = () -> saveNote();
             handler.postDelayed(saveRunnable, 1000);
         }
 
         @Override
         public void afterTextChanged(Editable s) {
-            if (currentWatcherEditText == null) return;
+            if (isRestoring || currentWatcherEditText == null) return;
             // Detect newline and continue bullet
             if (s.length() > 0) {
                 currentWatcherEditText.post(() -> {
@@ -121,7 +138,7 @@ public class NoteEditingActivity extends AppCompatActivity {
                 });
             }
             int cursor = currentWatcherEditText.getSelectionStart();
-            if (cursor <= 0) return;
+            if (cursor <= 0 || cursor > s.length()) return;
 
             int charStart = cursor - 1;
             int charEnd = cursor;
@@ -308,15 +325,58 @@ public class NoteEditingActivity extends AppCompatActivity {
         });
         undoButton.setOnClickListener(v -> {
             if (!undoStack.empty()) {
-                redoStack.push(contentEditText.getText().toString());
-                contentEditText.setText(undoStack.pop());
+                isRestoring = true;
+
+                // Save current to redo
+                redoStack.push(new SpannableStringBuilder(contentEditText.getText()));
+                redoCursorStack.push(contentEditText.getSelectionEnd());
+
+                // Restore previous
+                Editable prev = undoStack.pop();
+                int cursor = undoCursorStack.pop();
+
+                contentEditText.setText(prev);
+
+                // ALWAYS GOes BACK TO CONTENT
+                contentEditText.requestFocus();
+
+                int safeCursor = Math.min(cursor, prev.length());
+                contentEditText.setSelection(safeCursor);
+
+                isRestoring = false;
+
+                updateFormattingState();
+                refreshUndoRedoButtons();
             }
         });
+        redoButton.setOnClickListener(v -> {
+            if (!redoStack.empty()) {
+                isRestoring = true;
 
+                // Save current to undo
+                undoStack.push(new SpannableStringBuilder(contentEditText.getText()));
+                undoCursorStack.push(contentEditText.getSelectionEnd());
+
+                // Restore redo
+                Editable next = redoStack.pop();
+                int cursor = redoCursorStack.pop();
+
+                contentEditText.setText(next);
+
+                int safeCursor = Math.min(cursor, next.length());
+                contentEditText.setSelection(safeCursor);
+
+                isRestoring = false;
+
+                updateFormattingState();
+                refreshUndoRedoButtons();
+            }
+        });
         boldButton.setOnClickListener(v -> {
             ensureContentFocused();
-            isBoldActive = !isBoldActive;
+            saveStateForUndo();
 
+            isBoldActive = !isBoldActive;
             int start = contentEditText.getSelectionStart();
             int end = contentEditText.getSelectionEnd();
 
@@ -332,8 +392,9 @@ public class NoteEditingActivity extends AppCompatActivity {
 
         italicButton.setOnClickListener(v -> {
             ensureContentFocused();
-            isItalicActive = !isItalicActive;
+            saveStateForUndo();
 
+            isItalicActive = !isItalicActive;
             int start = contentEditText.getSelectionStart();
             int end = contentEditText.getSelectionEnd();
 
@@ -349,6 +410,8 @@ public class NoteEditingActivity extends AppCompatActivity {
 
         underlineButton.setOnClickListener(v -> {
             ensureContentFocused();
+            saveStateForUndo();
+
             isUnderlineActive = !isUnderlineActive;
 
             int start = contentEditText.getSelectionStart();
@@ -386,6 +449,7 @@ public class NoteEditingActivity extends AppCompatActivity {
         });
         bulletButton.setOnClickListener(v -> {
             ensureContentFocused();
+            saveStateForUndo();
             toggleBullet(contentEditText);
 
             boolean isBulletActive = isBulletLine(contentEditText.getText(),
@@ -429,6 +493,8 @@ public class NoteEditingActivity extends AppCompatActivity {
                 bottomToolbar.setTranslationY(0);
             }
         });
+        undoButton.setAlpha(0.1f);
+        redoButton.setAlpha(0.1f);
     }
     private void ensureContentFocused() {
         if (!contentEditText.hasFocus()) {
@@ -534,7 +600,7 @@ public class NoteEditingActivity extends AppCompatActivity {
             BulletSpan[] bulletSpans = text.getSpans(lineStart, lineEnd, BulletSpan.class);
             boolean isBullet = bulletSpans.length > 0;
 
-            // Get the "clean" content of the line (preserving bold/italic)
+            // Gets the "clean" content of the line (preserving bold/italic)
             CharSequence lineSeq = text.subSequence(lineStart, lineEnd);
             String lineHtml = Html.toHtml(new SpannableStringBuilder(lineSeq), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE)
                     .replaceAll("(?i)<p[^>]*>", "") // Remove <p>
@@ -576,7 +642,7 @@ public class NoteEditingActivity extends AppCompatActivity {
                 // Remove the default small Android bullet spans
                 for (BulletSpan span : spans) text.removeSpan(span);
 
-                // Re-apply your custom BulletSpan with correct styling/padding
+                // Re-apply the BulletSpan with correct styling/padding
                 text.setSpan(
                         new BulletSpan(20, isDarkMode() ? Color.WHITE : Color.BLACK),
                         start,
@@ -588,8 +654,14 @@ public class NoteEditingActivity extends AppCompatActivity {
         }
     }
     private void saveStateForUndo() {
-        undoStack.push(contentEditText.getText().toString());
+        // Save a copy of current content
+        Editable current = new SpannableStringBuilder(contentEditText.getText());
+        undoStack.push(current);
+        undoCursorStack.push(contentEditText.getSelectionStart());
+
+        // Clear redo stack whenever user types new content
         redoStack.clear();
+        refreshUndoRedoButtons();
     }
     @Override
     protected void onDestroy() {
@@ -772,5 +844,15 @@ public class NoteEditingActivity extends AppCompatActivity {
         updateButtonState(italicButton, isItalicActive);
         updateButtonState(underlineButton, isUnderlineActive);
         updateButtonState(highlightButton, isHighlightActive);
+    }
+    private void refreshUndoRedoButtons() {
+        boolean canUndo = !undoStack.isEmpty();
+        boolean canRedo = !redoStack.isEmpty();
+
+        undoButton.setEnabled(canUndo);
+        undoButton.setAlpha(canUndo ? 1f : 0.1f);
+
+        redoButton.setEnabled(canRedo);
+        redoButton.setAlpha(canRedo ? 1f : 0.1f);
     }
 }
