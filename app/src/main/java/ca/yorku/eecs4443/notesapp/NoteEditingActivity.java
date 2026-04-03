@@ -316,10 +316,14 @@ public class NoteEditingActivity extends AppCompatActivity {
         // --- Formatting buttons ---
         backButton.setOnClickListener(v -> {
             handler.removeCallbacks(saveRunnable);
-            if (saveNote()) {
-                Toast.makeText(this, "Note saved!", Toast.LENGTH_SHORT).show();
+            if (readOnly) {
+                Toast.makeText(this, "Viewing deleted note", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Empty note, not saved!", Toast.LENGTH_SHORT).show();
+                if (saveNote()) {
+                    Toast.makeText(this, "Note saved!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Empty note, not saved!", Toast.LENGTH_SHORT).show();
+                }
             }
             finish();
         });
