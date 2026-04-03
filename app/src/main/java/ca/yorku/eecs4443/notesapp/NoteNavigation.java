@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.EditText;
@@ -171,19 +172,22 @@ public class NoteNavigation extends AppCompatActivity {
 
         ArrayList<NoteItemData> filteredList = new ArrayList<>();
 
+        // Normalize query: lowercase and remove spaces
         String lowerQuery = query.toLowerCase().trim();
-        String noSpaceQuery = lowerQuery.replaceAll("\\s+", ""); // "7 3 7" -> "737"
-        String[] keywords = lowerQuery.split("\\s+"); // keep normal words
+        String noSpaceQuery = lowerQuery.replaceAll("\\s+", "");
+        String[] keywords = lowerQuery.split("\\s+");
 
         for (NoteItemData note : fullList) {
-
-            String title = note.getTitle().toLowerCase();
-            String content = note.getContent().toLowerCase();
+            // ---- Get plain text safely ----
+            String title = getPlainText(note.getTitle()).toLowerCase();
+            String content = getPlainText(note.getContent()).toLowerCase();
 
             String titleNoSpace = title.replaceAll("\\s+", "");
             String contentNoSpace = content.replaceAll("\\s+", "");
+
             boolean matches = true;
-            // normal keyword match
+
+            // Check each keyword
             for (String word : keywords) {
                 if (word.isEmpty()) continue;
                 if (!title.contains(word) && !content.contains(word)) {
@@ -191,12 +195,14 @@ public class NoteNavigation extends AppCompatActivity {
                     break;
                 }
             }
-            //space-insensitive match
+
+            // If normal keyword match failed, try space-insensitive match
             if (!matches) {
                 if (titleNoSpace.contains(noSpaceQuery) || contentNoSpace.contains(noSpaceQuery)) {
                     matches = true;
                 }
             }
+
             if (matches) {
                 filteredList.add(note);
             }
@@ -205,6 +211,15 @@ public class NoteNavigation extends AppCompatActivity {
         recyclerDataArrayList.clear();
         recyclerDataArrayList.addAll(filteredList);
         adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Safely converts text to plain string (strips spans, HTML, etc.)
+     */
+    private String getPlainText(String text) {
+        if (text == null) return "";
+        // Remove HTML tags if any
+        return android.text.Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY).toString();
     }
     @Override
     protected void onResume() {

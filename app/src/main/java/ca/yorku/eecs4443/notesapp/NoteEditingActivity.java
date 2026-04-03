@@ -102,24 +102,49 @@ public class NoteEditingActivity extends AppCompatActivity {
                 currentWatcherEditText.post(() -> {
                     int cursor = currentWatcherEditText.getSelectionStart();
                     Editable editable = currentWatcherEditText.getText();
-
                     if (cursor > 0 && editable.charAt(cursor - 1) == '\n') {
-
                         currentWatcherEditText.postDelayed(() -> {
                             int newCursor = currentWatcherEditText.getSelectionStart();
                             Editable editableText = currentWatcherEditText.getText();
-
-                            int prevLineStart = editableText.toString().lastIndexOf('\n', newCursor - 2);
-                            prevLineStart = (prevLineStart == -1) ? 0 : prevLineStart + 1;
-
+                            // -------- PREVIOUS LINE --------
                             int prevLineEnd = newCursor - 1;
-
-                            BulletSpan[] spans = editableText.getSpans(prevLineStart, prevLineEnd, BulletSpan.class);
-
-                            if (spans.length > 0) {
+                            int prevLineStart = editableText.toString().lastIndexOf('\n', prevLineEnd - 1);
+                            prevLineStart = (prevLineStart == -1) ? 0 : prevLineStart + 1;
+                            // -------- CURRENT LINE --------
+                            int currentLineStart = newCursor;
+                            int currentLineEnd = editableText.toString().indexOf('\n', currentLineStart);
+                            if (currentLineEnd == -1) currentLineEnd = editableText.length();
+                            // Check spans
+                            BulletSpan[] prevSpans = editableText.getSpans(prevLineStart, prevLineEnd, BulletSpan.class);
+                            BulletSpan[] currentSpans = editableText.getSpans(currentLineStart, currentLineEnd, BulletSpan.class);
+                            // Get text
+                            String prevLineText = editableText.subSequence(prevLineStart, prevLineEnd).toString().trim();
+                            String currentLineText = editableText.subSequence(currentLineStart, currentLineEnd).toString().trim();
+                            // -------- LOGIC --------
+                            if (prevSpans.length > 0) {
+                                // CASE 1: user pressed enter on EMPTY bullet to exit list
+                                if (prevLineText.isEmpty()) {
+                                    for (BulletSpan span : prevSpans) {
+                                        editableText.removeSpan(span);
+                                    }
+                                    // remove the newline
+                                    if (newCursor > 0 && newCursor <= editableText.length()) {
+                                        editableText.delete(newCursor - 1, newCursor);
+                                    }
+                                    return;
+                                }
+                                // CASE 2: user is on empty new bullet line and presses enter again to exit
+                                if (currentSpans.length > 0 && currentLineText.isEmpty()) {
+                                    for (BulletSpan span : currentSpans) {
+                                        editableText.removeSpan(span);
+                                    }
+                                    if (newCursor > 0 && newCursor <= editableText.length()) {
+                                        editableText.delete(newCursor - 1, newCursor);
+                                    }
+                                    return;
+                                }
+                                // CASE 3: normal bullet continuation
                                 int insertPos = newCursor;
-
-                                // Ensure line has content
                                 if (insertPos <= editableText.length()) {
                                     editableText.insert(insertPos, " ");
 
@@ -140,7 +165,6 @@ public class NoteEditingActivity extends AppCompatActivity {
 
             int charStart = cursor - 1;
             int charEnd = cursor;
-
             if (currentWatcherEditText == contentEditText) {
                 // Content: Rich formatting
                 boolean isBullet = isBulletLine(s, charStart);
