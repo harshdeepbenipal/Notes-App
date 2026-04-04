@@ -25,7 +25,7 @@ The application emphasizes usability, adaptive interface design, and performance
 * Trash system for recovering or permanently deleting notes
 * Light and dark mode support
 * Adaptive layouts for smartphones and tablets
-* Offline access with automatic synchronization when reconnected
+* Offline access with synchronization
 
 ---
 
@@ -34,7 +34,7 @@ The application emphasizes usability, adaptive interface design, and performance
 * Language: Java
 * Development Environment: Android Studio
 * User Interface: XML, ConstraintLayout, RecyclerView
-* Backend and Database: Firebase (Authentication and Firestore/Realtime Database)
+* Backend and Database: Firebase (Realtime Database)
 
 ---
 
@@ -79,9 +79,3 @@ Users can register or log in using an email account to access their notes. Notes
 * Prakriti Biswas
 * Oshiya Brahmbhatt
 * Cassandra Hutchinson
-
----
-
-## License
-
-This project was developed for academic purposes and is not intended for commercial use.
