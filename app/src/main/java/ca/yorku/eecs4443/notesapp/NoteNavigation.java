@@ -15,6 +15,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -86,6 +87,11 @@ public class NoteNavigation extends AppCompatActivity {
                         for (QueryDocumentSnapshot doc : value) {
 
                             Boolean isDeleted = doc.getBoolean("isDeleted");
+                            if (doc.getMetadata().hasPendingWrites() && isDeleted != null && isDeleted) {
+                                Toast.makeText(NoteNavigation.this,
+                                        "Note moved to Trash",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                             if (isDeleted != null && isDeleted) continue;
 
                             String title = doc.getString("title");

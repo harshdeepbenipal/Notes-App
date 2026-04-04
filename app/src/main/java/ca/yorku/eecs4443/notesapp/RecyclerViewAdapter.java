@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +30,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public RecyclerViewAdapter(ArrayList<NoteItemData> noteDataArrayList, Context context, boolean fromTrash) {
         this.noteDataArrayList = noteDataArrayList;
         this.context = context;
-        this.fromTrash = fromTrash; // know if in trash
+        this.fromTrash = fromTrash; // if in trash
     }
 
     @NonNull
@@ -75,7 +76,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             holder.noteTimestampTV.setText("");
         }
 
-        // CLICK → OPEN NOTE
+        // CLICK to OPEN NOTE
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, NoteEditingActivity.class);
             intent.putExtra("id", note.getId());
@@ -107,7 +108,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                                     .setTitle("Delete Permanently")
                                     .setMessage("This cannot be undone. Are you sure?")
                                     .setPositiveButton("Delete", (d, w) -> {
-
+                                        Toast.makeText(context, "Note permanently deleted", Toast.LENGTH_SHORT).show();
                                         FirebaseFirestore.getInstance()
                                                 .collection("users")
                                                 .document(userId)
@@ -193,17 +194,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             notePreviewTV = itemView.findViewById(R.id.notePreview);
             noteTimestampTV = itemView.findViewById(R.id.noteTimestamp);
         }
-    }
-    private void moveToTrash(String noteId) {
-
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(userId)
-                .collection("notes")
-                .document(noteId)
-                .update("isDeleted", true);
     }
     private Spanned formatContent(String html) {
         if (html == null || html.isEmpty()) {

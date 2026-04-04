@@ -4,19 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import androidx.drawerlayout.widget.DrawerLayout;
-import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 
@@ -83,31 +84,44 @@ public class TrashActivity extends AppCompatActivity {
         db.collection("users")
                 .document(userId)
                 .collection("notes")
-                .whereEqualTo("isDeleted", true)
                 .orderBy("lastModified", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
-
                     if (error != null) {
                         Log.e("Firestore", "Error: ", error);
                         return;
                     }
 
                     if (value != null) {
+                        // Track changes for toasts
+                        for (DocumentChange change : value.getDocumentChanges()) {
+                            Boolean isDeleted = change.getDocument().getBoolean("isDeleted");
+
+                            // Note recovered (no longer deleted)
+                            if (change.getType() == DocumentChange.Type.MODIFIED &&
+                                    isDeleted != null && !isDeleted &&
+                                    change.getDocument().getMetadata().hasPendingWrites()) {
+                                Toast.makeText(TrashActivity.this,
+                                        "Note recovered",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        // Rebuild the trash list
                         trashList.clear();
-
                         for (QueryDocumentSnapshot doc : value) {
+                            Boolean deleted = doc.getBoolean("isDeleted");
+                            if (deleted != null && deleted) {
+                                String title = doc.getString("title");
+                                String content = doc.getString("content");
+                                Timestamp lastMod = doc.getTimestamp("lastModified");
 
-                            String title = doc.getString("title");
-                            String content = doc.getString("content");
-                            Timestamp lastMod = doc.getTimestamp("lastModified");
-
-                            trashList.add(new NoteItemData(
-                                    doc.getId(),
-                                    title != null ? title : "Untitled",
-                                    content != null ? content : "",
-                                    R.drawable.note,
-                                    lastMod
-                            ));
+                                trashList.add(new NoteItemData(
+                                        doc.getId(),
+                                        title != null ? title : "Untitled",
+                                        content != null ? content : "",
+                                        R.drawable.note,
+                                        lastMod
+                                ));
+                            }
                         }
 
                         adapter.notifyDataSetChanged();
