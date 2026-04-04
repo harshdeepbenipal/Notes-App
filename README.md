@@ -1,4 +1,4 @@
-# Scribble – Cross-Device Note-Taking Application
+# Scribble – Cross-Device Syncable Note-Taking Application
 
 ## Overview
 
